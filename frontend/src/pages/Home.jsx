@@ -9,20 +9,20 @@ export default function Home() {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchCourses = async () => {
-            try {
-                const { data } = await axios.get('/courses');
-                // For home page, we only show top 4 courses
-                setCourses(data.slice(0, 4));
-            } catch (err) {
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchCourses();
-    }, []);
+        useEffect(() => {
+            const fetchCourses = async () => {
+                try {
+                    const { data } = await axios.get('/api/courses');
+                    // For home page, we only show top 4 courses
+                    setCourses(data.slice(0, 4));
+                } catch (err) {
+                    console.error(err);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchCourses();
+        }, []);
 
     const categories = [
         { name: 'Development', icon: '💻' },
