@@ -9,10 +9,12 @@ import adminRoutes from "./routes/admin.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: "https://courses-jet-iota.vercel.app"
+}));
 app.get("/" , (req , res)=>{
   res.send("app is now running")
 })
@@ -23,7 +25,7 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/admin", adminRoutes);
 
 mongoose
-  .connect("mongodb+srv://sahilvanzara49_db_user:Sahil2306@cluster-1.x5kcibb.mongodb.net/?appName=Cluster-1")
+  .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log("Connected to MongoDB");
 
