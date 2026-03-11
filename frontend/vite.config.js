@@ -7,9 +7,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: "https://courses-uxdz.vercel.app",
+        target: "https://courses-jet-iota.vercel.app",
         changeOrigin: true,
-      },
+      },  
     },
   },
 });
