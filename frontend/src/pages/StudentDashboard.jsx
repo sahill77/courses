@@ -40,7 +40,11 @@ export default function StudentDashboard() {
             setMessage({ type: 'success', text: 'Profile updated successfully!' });
             setProfileData({ ...profileData, password: '' }); // Clear password field
         } catch (err) {
-            setMessage({ type: 'error', text: err.response?.data?.error || 'Failed to update profile' });
+            const message = err.response?.data?.error || err.message || 'Failed to update profile';
+            setMessage({ 
+                type: 'error', 
+                text: typeof message === 'object' ? JSON.stringify(message) : String(message) 
+            });
         } finally {
             setUpdating(false);
         }
