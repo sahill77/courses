@@ -23,7 +23,7 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/admin", adminRoutes);
 
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect("mongodb+srv://sahilvanzara49_db_user:Sahil2306@cluster-1.x5kcibb.mongodb.net/?appName=Cluster-1")
   .then(() => {
     console.log("Connected to MongoDB");
 
