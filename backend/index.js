@@ -9,42 +9,28 @@ import adminRoutes from "./routes/admin.js";
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT;
 
 app.use(express.json());
-app.use(cors({
+app.use(cors());
+app.get("/" , (req , res)=>{
+  res.send("app is now running")
+})
 
-}));
-
-app.get("/", (req, res) => {
-  res.send("app is now running");
-});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/admin", adminRoutes);
 
-let cachedDb = null;
+mongoose
+  .connect("mongodb+srv://sahilvanzara49_db_user:Sahil2306@cluster-1.x5kcibb.mongodb.net/?appName=Cluster-1")
+  .then(() => {
+    console.log("Connected to MongoDB");
 
-async function connectToDatabase() {
-  if (cachedDb) {
-    return cachedDb;
-  }
-  
-  const db = await mongoose.connect(process.env.MONGODB_URI);
-  cachedDb = db;
-  return db;
-}
-
-if (process.env.NODE_ENV !== "production") {
-  const PORT = process.env.PORT || 5000;
-  connectToDatabase().then(() => {
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
+  })
+  .catch((err) => {
+    console.log("Error connecting to MongoDB:", err);
   });
-}
-
-export default async (req, res) => {
-  await connectToDatabase();
-  return app(req, res);
-};
