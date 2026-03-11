@@ -9,30 +9,42 @@ import adminRoutes from "./routes/admin.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cors({
-  origin: "https://courses-jet-iota.vercel.app"
-}));
-app.get("/" , (req , res)=>{
-  res.send("app is now running")
-})
 
+}));
+
+app.get("/", (req, res) => {
+  res.send("app is now running");
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/admin", adminRoutes);
 
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log("Connected to MongoDB");
+let cachedDb = null;
 
+async function connectToDatabase() {
+  if (cachedDb) {
+    return cachedDb;
+  }
+  
+  const db = await mongoose.connect(process.env.MONGODB_URI);
+  cachedDb = db;
+  return db;
+}
+
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 5000;
+  connectToDatabase().then(() => {
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
-  })
-  .catch((err) => {
-    console.log("Error connecting to MongoDB:", err);
   });
+}
+
+export default async (req, res) => {
+  await connectToDatabase();
+  return app(req, res);
+};
