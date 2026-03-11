@@ -7,7 +7,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: "https://courses-jet-iota.vercel.app/api",
+        target: "https://course-tau-bice.vercel.app/",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },  
