@@ -14,12 +14,12 @@ const PORT = process.env.PORT;
 app.use(express.json());
 app.use(cors());
 
-// Routes
+
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/admin", adminRoutes);
 
-// Connect to MongoDB
+
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("Connected to MongoDB"))

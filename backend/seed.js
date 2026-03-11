@@ -14,7 +14,7 @@ const courses = [
     thumbnail: "/images/courses/web-dev.png",
     instructor: "John Doe",
     category: "Development",
-    price: 49.99,
+    price: 5000,
     content: [
       { title: "Introduction to HTML", description: "Basics of web structure" },
       { title: "CSS Mastery", description: "Styling and Layouts" },
@@ -45,7 +45,7 @@ const courses = [
     thumbnail: "/images/courses/data-science.png",
     instructor: "Jane Smith",
     category: "Development",
-    price: 59.99,
+    price: 6000,
     content: [
       { title: "Python Basics", description: "Syntax and Data Types" },
       {
@@ -72,7 +72,7 @@ const courses = [
     thumbnail: "/images/courses/software-dev.png",
     instructor: "Robert Martin",
     category: "Development",
-    price: 79.99,
+    price: 7000,
     content: [
       {
         title: "SOLID Principles",
@@ -102,7 +102,7 @@ const courses = [
     thumbnail: "/images/courses/mobile-dev.png",
     instructor: "Angela Yu",
     category: "Development",
-    price: 64.99,
+    price: 8000,
     content: [
       {
         title: "React Native Basics",
@@ -128,7 +128,7 @@ const courses = [
     thumbnail: "/images/courses/game-dev.png",
     instructor: "Rick Davidson",
     category: "Development",
-    price: 54.99,
+    price: 9000,
     content: [
       { title: "C# for Unity", description: "Scripting game logic" },
       {
@@ -154,7 +154,7 @@ const courses = [
     thumbnail: "/images/courses/cybersecurity.png",
     instructor: "Kevin Mitnick",
     category: "Analysis",
-    price: 89.99,
+    price: 8000,
     content: [
       { title: "Network Security", description: "Firewalls and Protocols" },
       {
@@ -181,7 +181,7 @@ const courses = [
       "https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&q=80&w=800",
     instructor: "Sarah Jenkins",
     category: "Design",
-    price: 44.99,
+    price: 5000,
     content: [
       { title: "Design Thinking", description: "Understanding user needs" },
       { title: "Wireframing", description: "Creating low-fidelity layouts" },
@@ -208,7 +208,7 @@ const courses = [
     thumbnail: "/images/courses/figma-masterclass.png",
     instructor: "Gary Simon",
     category: "Design",
-    price: 49.99,
+    price: 5000,
     content: [
       {
         title: "Figma Interface Basics",
@@ -238,7 +238,7 @@ const courses = [
       "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800",
     instructor: "Andrew Ng",
     category: "Development",
-    price: 99.99,
+    price: 10000,
     content: [
       { title: "Deep Learning", description: "Neural Networks and AI" },
       { title: "MLOps", description: "Deploying models to production" },
@@ -261,7 +261,7 @@ const courses = [
     thumbnail: "/images/courses/data-analysis.png",
     instructor: "Dr. Linda Fox",
     category: "Analysis",
-    price: 54.99,
+    price: 6000,
     content: [
       {
         title: "Introduction to Statistics",
@@ -295,7 +295,7 @@ const courses = [
     thumbnail: "/images/courses/social-media-marketing.png",
     instructor: "Sarah Jenkins",
     category: "Marketing",
-    price: 39.99,
+    price: 3000,
     content: [
       {
         title: "Building an Audience",
@@ -322,7 +322,7 @@ const courses = [
     thumbnail: "/images/courses/blogging.png",
     instructor: "David Miller",
     category: "Marketing",
-    price: 29.99,
+    price: 3000,
     content: [
       {
         title: "Finding Your Niche",
