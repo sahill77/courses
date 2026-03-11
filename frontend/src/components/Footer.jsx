@@ -4,6 +4,7 @@ import { BookOpen, Instagram, Facebook, MessageCircle, Mail, MapPin, Phone } fro
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
+    
 
     return (
         <footer className="glass" style={{ marginTop: '4rem', padding: '4rem 0 2rem', borderTop: '1px solid var(--border)' }}>
