@@ -7,7 +7,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: "https://ocm-sepia.vercel.app",
+        target: "https://courses-two-xi.vercel.app",
         changeOrigin: true,
       },  
     },
