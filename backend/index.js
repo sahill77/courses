@@ -14,7 +14,7 @@ const PORT = process.env.PORT;
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://ocm-1.vercel.app",
+    origin: "*",
     methods: ["GET","POST","PUT","DELETE"],
     credentials:true
   }));
