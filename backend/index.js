@@ -14,9 +14,11 @@ const PORT = process.env.PORT;
 app.use(express.json());
 app.use(
   cors({
-    origin: "*",
+    origin: [
+      "https://courses-frontend-umber.vercel.app",
+      "http://localhost:3000"],
     methods: ["GET","POST","PUT","DELETE"],
-    // credentials:true
+    credentials:true
   }));
   
 app.get("/" , (req , res)=>{
