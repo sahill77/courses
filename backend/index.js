@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: [
-      "https://courses-frontend-umber.vercel.app",
+      "https://courses-f.vercel.app",
       "http://localhost:3000"],
     methods: ["GET","POST","PUT","DELETE"],
     credentials:true
