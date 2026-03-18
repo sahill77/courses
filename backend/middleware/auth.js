@@ -6,7 +6,7 @@ export const auth = async (req, res, next) => {
         const token = req.header('Authorization')?.replace('Bearer ', '');
         if (!token) throw new Error();
 
-        const decoded = jwt.verify(token, "supersecretkey123");
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findById(decoded.id);
 
         if (!user) throw new Error();

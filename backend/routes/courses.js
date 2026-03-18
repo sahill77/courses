@@ -16,6 +16,16 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Get student dashboard data - MUST be before /:id route
+router.get('/my/courses', auth, async (req, res) => {
+    try {
+        const enrollments = await Enrollment.find({ user: req.user._id }).populate('course');
+        res.send(enrollments);
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+});
+
 // Get course detail
 router.get('/:id', async (req, res) => {
     try {
@@ -46,16 +56,6 @@ router.post('/:id/enroll', auth, async (req, res) => {
         await course.save();
 
         res.send({ message: 'Enrolled successfully' });
-    } catch (error) {
-        res.status(500).send({ error: error.message });
-    }
-});
-
-// Get student dashboard data
-router.get('/my/courses', auth, async (req, res) => {
-    try {
-        const enrollments = await Enrollment.find({ user: req.user._id }).populate('course');
-        res.send(enrollments);
     } catch (error) {
         res.status(500).send({ error: error.message });
     }

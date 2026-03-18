@@ -16,9 +16,12 @@ app.use(
   cors({
     origin: [
       "https://courses-f.vercel.app",
-      "http://localhost:3000"],
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:3000"
+    ],
     methods: ["GET","POST","PUT","DELETE"],
-    credentials:true
+    credentials: true
   }));
   
 app.get("/" , (req , res)=>{
@@ -31,7 +34,7 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/admin", adminRoutes);
 
 mongoose
-  .connect("mongodb+srv://sahilvanzara49_db_user:Sahil2306@cluster-1.x5kcibb.mongodb.net/?appName=Cluster-1")
+  .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log("Connected to MongoDB");
 

@@ -14,6 +14,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import SettingsPage from './pages/SettingsPage';
 import Contact from './pages/Contact';
 import Footer from './components/Footer';
 
@@ -47,6 +48,7 @@ function AppContent() {
             <Route path='/privacy' element={<PrivacyPolicy />} />
             <Route path='/terms' element={<Terms />} />
             <Route path='/contact' element={<Contact />} />
+            <Route path='/settings' element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path='/forgot-password' element={<GuestRoute><ForgotPassword /></GuestRoute>} />
             <Route path='/reset-password/:token' element={<GuestRoute><ResetPassword /></GuestRoute>} />
             <Route path='/dashboard' element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
