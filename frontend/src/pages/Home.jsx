@@ -3,11 +3,13 @@ import axios from '../services/api';
 import CourseCard from '../components/CourseCard';
 import { Search, Sparkles, BookOpen, Clock, Award, Users, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function Home() {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -24,50 +26,9 @@ export default function Home() {
         fetchCourses();
     }, []);
 
-    const categories = [
-        { name: 'Development', icon: '💻' },
-        { name: 'Design', icon: '🎨' },
-        { name: 'Analysis', icon: '📊' },
-        { name: 'Marketing', icon: '📈' }
-    ];
 
     return (
         <div className="animate-fade-in">
-            {/* Category Bar */}
-            <div style={{
-                display: 'flex',
-                gap: '1.5rem',
-                overflowX: 'auto',
-                padding: '0.75rem 1rem',
-                margin: '0 -1rem 2rem',
-                borderBottom: '1px solid var(--border)',
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-                WebkitOverflowScrolling: 'touch'
-            }} className="no-scrollbar">
-                {categories.map(cat => (
-                    <Link
-                        key={cat.name}
-                        to={`/courses?category=${cat.name}`}
-                        style={{
-                            whiteSpace: 'nowrap',
-                            fontSize: '0.9rem',
-                            color: 'var(--text-muted)',
-                            textDecoration: 'none',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.25rem 0.5rem',
-                            transition: 'var(--transition)'
-                        }}
-                        onMouseOver={(e) => e.target.style.color = 'var(--primary)'}
-                        onMouseOut={(e) => e.target.style.color = 'var(--text-muted)'}
-                    >
-                        <span>{cat.icon}</span> {cat.name}
-                    </Link>
-                ))}
-            </div>
-
             {/* Hero Section */}
             <section style={{
                 padding: '4rem 0',
@@ -100,9 +61,11 @@ export default function Home() {
                         <Link to="/courses" className="btn btn-primary" style={{ padding: '0.8rem 2rem', fontSize: '1rem', gap: '0.75rem', color: '#fff' }}>
                             Explore All Courses <ArrowRight size={18} />
                         </Link>
-                        <Link to="/register" className="btn btn-ghost" style={{ padding: '0.8rem 2rem', fontSize: '1rem', border: '1px solid var(--border)' }}>
-                            Join for Free
-                        </Link>
+                        {!user && (
+                            <Link to="/register" className="btn btn-ghost" style={{ padding: '0.8rem 2rem', fontSize: '1rem', border: '1px solid var(--border)' }}>
+                                Join for Free
+                            </Link>
+                        )}
                     </div>
                 </div>
                 <div style={{ position: 'relative' }}>
@@ -154,6 +117,40 @@ export default function Home() {
                 </div>
             </div>
 
+            {/* Browse Categories Section */}
+            <section style={{ marginBottom: '5rem' }}>
+                <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+                    <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Browse Our Categories</h2>
+                    <p style={{ color: 'var(--text-muted)' }}>Explore our top categories and find the right path for you.</p>
+                </div>
+                <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem' }}>
+                    {[
+                        { name: 'Development', icon: '💻', color: 'var(--primary)', bg: 'rgba(99,102,241,0.1)', desc: 'Web, Mobile & Software' },
+                        { name: 'Design', icon: '🎨', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', desc: 'UI/UX & Graphic Design' },
+                        { name: 'Marketing', icon: '📈', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', desc: 'Digital & Social Media' },
+                        { name: 'Analysis', icon: '📊', color: '#22c55e', bg: 'rgba(34,197,94,0.1)', desc: 'Data & Business Analysis' },
+                    ].map(cat => (
+                        <Link
+                            key={cat.name}
+                            to={`/courses?category=${cat.name}`}
+                            className="glass"
+                            style={{ padding: '2rem 1.5rem', borderRadius: '16px', textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', textAlign: 'center', transition: 'var(--transition)', border: '1px solid var(--border)' }}
+                            onMouseOver={(e) => e.currentTarget.style.borderColor = cat.color}
+                            onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
+                        >
+                            <div style={{ fontSize: '2.5rem', background: cat.bg, padding: '1rem', borderRadius: '16px', lineHeight: 1 }}>{cat.icon}</div>
+                            <div>
+                                <div style={{ fontWeight: 700, fontSize: '1.1rem', color: cat.color, marginBottom: '0.25rem' }}>{cat.name}</div>
+                                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{cat.desc}</div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: cat.color, fontWeight: 600 }}>
+                                Explore <ArrowRight size={14} />
+                            </div>
+                        </Link>
+                    ))}
+                </div>
+            </section>
+
             {/* Popular Courses Section */}
             <section style={{ marginBottom: '5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem' }}>
@@ -186,9 +183,11 @@ export default function Home() {
                 <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto 2.5rem', position: 'relative' }}>
                     Get unlimited access to all of our courses today. Plan starts at just ₹15/month.
                 </p>
-                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', position: 'relative' }} className="stack-on-mobile">
-                    <Link to="/register" className="btn btn-primary" style={{ padding: '1rem 3rem', fontSize: '1.1rem', color: '#fff' }}>Get Started Now</Link>
-                </div>
+                {!user && (
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', position: 'relative' }} className="stack-on-mobile">
+                        <Link to="/register" className="btn btn-primary" style={{ padding: '1rem 3rem', fontSize: '1.1rem', color: '#fff' }}>Get Started Now</Link>
+                    </div>
+                )}
             </section>
         </div>
     );

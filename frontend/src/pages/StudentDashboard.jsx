@@ -1,20 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { Link, useSearchParams } from 'react-router-dom';
-import { Book, Play, LayoutDashboard, ChevronLeft, User, Settings, Save, Lock, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Book, Play, LayoutDashboard, ChevronLeft, Sparkles } from 'lucide-react';
 
 export default function StudentDashboard() {
-    const { user, updateUser } = useAuth();
-    const [searchParams, setSearchParams] = useSearchParams();
+    const { user } = useAuth();
     const [enrollments, setEnrollments] = useState([]);
     const [loading, setLoading] = useState(true);
-    const activeTab = searchParams.get('tab') || 'learning';
-
-    // Profile form state
-    const [profileData, setProfileData] = useState({ name: user?.name || '', email: user?.email || '', password: '' });
-    const [updating, setUpdating] = useState(false);
-    const [message, setMessage] = useState({ type: '', text: '' });
 
     useEffect(() => {
         const fetchMyCourses = async () => {
@@ -30,26 +23,6 @@ export default function StudentDashboard() {
         fetchMyCourses();
     }, []);
 
-    const handleProfileUpdate = async (e) => {
-        e.preventDefault();
-        setUpdating(true);
-        setMessage({ type: '', text: '' });
-        try {
-            const { data } = await axios.put('/auth/profile', profileData);
-            updateUser(data.user);
-            setMessage({ type: 'success', text: 'Profile updated successfully!' });
-            setProfileData({ ...profileData, password: '' }); // Clear password field
-        } catch (err) {
-            const message = err.response?.data?.error || err.message || 'Failed to update profile';
-            setMessage({ 
-                type: 'error', 
-                text: typeof message === 'object' ? JSON.stringify(message) : String(message) 
-            });
-        } finally {
-            setUpdating(false);
-        }
-    };
-
     const validEnrollments = enrollments.filter(enr => enr && enr.course);
 
     return (
@@ -63,25 +36,10 @@ export default function StudentDashboard() {
                     <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>Dashboard</h1>
                     <p style={{ color: 'var(--text-muted)' }}>Welcome back, <span style={{ color: 'var(--header-text)', fontWeight: 600 }}>{user?.name}</span></p>
                 </div>
-                <div style={{ display: 'flex', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', padding: '0.4rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                    <button
-                        onClick={() => setSearchParams({ tab: 'learning' })}
-                        className={`btn ${activeTab === 'learning' ? 'btn-primary' : 'btn-ghost'}`}
-                        style={{ padding: '0.6rem 1.2rem', fontSize: '0.9rem', gap: '0.5rem' }}
-                    >
-                        <Book size={18} /> My Learning
-                    </button>
-                    <button
-                        onClick={() => setSearchParams({ tab: 'profile' })}
-                        className={`btn ${activeTab === 'profile' ? 'btn-primary' : 'btn-ghost'}`}
-                        style={{ padding: '0.6rem 1.2rem', fontSize: '0.9rem', gap: '0.5rem' }}
-                    >
-                        <User size={18} /> Profile
-                    </button>
-                </div>
+
             </header>
 
-            {activeTab === 'learning' ? (
+            {(
                 <section className="animate-fade-in">
                     {validEnrollments.length > 0 && (
                         <div className="glass stack-on-mobile" style={{ marginBottom: '3rem', padding: '2rem', display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '2rem', alignItems: 'center', border: '1px solid rgba(99,102,241,0.2)' }}>
@@ -159,86 +117,6 @@ export default function StudentDashboard() {
                             ))}
                         </div>
                     )}
-                </section>
-            ) : (
-                <section className="animate-fade-in" style={{ maxWidth: '600px', margin: '0 auto' }}>
-                    <div className="glass container-mobile-padding" style={{ padding: '2.5rem 1.5rem' }}>
-                        <h2 style={{ fontSize: '1.4rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                            <Settings size={20} color="var(--primary)" /> Account Settings
-                        </h2>
-
-                        {message.text && (
-                            <div style={{
-                                padding: '1rem',
-                                borderRadius: '8px',
-                                marginBottom: '1.5rem',
-                                background: message.type === 'success' ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
-                                border: `1px solid ${message.type === 'success' ? '#22c55e' : '#ef4444'}`,
-                                color: message.type === 'success' ? '#4ade80' : '#f87171',
-                                fontSize: '0.9rem'
-                            }}>
-                                {message.text}
-                            </div>
-                        )}
-
-                        <form onSubmit={handleProfileUpdate} style={{ display: 'grid', gap: '1.5rem' }}>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Full Name</label>
-                                <div style={{ position: 'relative' }}>
-                                    <User size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                                    <input
-                                        type="text"
-                                        value={profileData.name}
-                                        onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                                        style={{ width: '100%', padding: '0.8rem 1rem 0.8rem 3rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border)', borderRadius: '8px', color: '#fff' }}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Email Address</label>
-                                <div style={{ position: 'relative' }}>
-                                    <Settings size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                                    <input
-                                        type="email"
-                                        value={profileData.email}
-                                        onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                                        style={{ width: '100%', padding: '0.8rem 1rem 0.8rem 3rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border)', borderRadius: '8px', color: '#fff' }}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>New Password (Leave blank to keep current)</label>
-                                <div style={{ position: 'relative' }}>
-                                    <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                                    <input
-                                        type="password"
-                                        value={profileData.password}
-                                        onChange={(e) => setProfileData({ ...profileData, password: e.target.value })}
-                                        placeholder="••••••••"
-                                        style={{ width: '100%', padding: '0.8rem 1rem 0.8rem 3rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border)', borderRadius: '8px', color: '#fff' }}
-                                    />
-                                </div>
-                            </div>
-
-                            <button type="submit" className="btn btn-primary" disabled={updating} style={{ marginTop: '1rem', justifyContent: 'center', padding: '1rem' }}>
-                                {updating ? 'Saving...' : <><Save size={18} /> Save Changes</>}
-                            </button>
-                        </form>
-                    </div>
-
-                    <div className="glass" style={{ marginTop: '1.5rem', padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <div style={{ padding: '0.75rem', background: 'rgba(99,102,241,0.1)', borderRadius: '10px' }}>
-                            <Lock size={20} color="var(--primary)" />
-                        </div>
-                        <div style={{ fontSize: '0.85rem' }}>
-                            <div style={{ fontWeight: 600, marginBottom: '0.1rem' }}>Security Protocol</div>
-                            <div style={{ color: 'var(--text-muted)' }}>Your data is encrypted and protected with industry-standard protocols.</div>
-                        </div>
-                    </div>
                 </section>
             )}
         </div>

@@ -25,7 +25,7 @@ export default function Login() {
         <div className="animate-fade-in" style={{ maxWidth: '400px', margin: '4rem auto' }}>
             <div className="glass" style={{ padding: '2rem' }}>
                 <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                    <LogIn color="var(--primary)" /> Welcome Back
+                    <LogIn color="var(--primary)" /> SparksStream
                 </h2>
                 {error && <div style={{ color: '#ef4444', marginBottom: '1rem', fontSize: '0.9rem', textAlign: 'center' }}>{error}</div>}
                 <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem' }}>
@@ -47,6 +47,9 @@ export default function Login() {
                     </div>
                     <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem', justifyContent: 'center' }}>Login</button>
                 </form>
+                <p style={{ textAlign: 'right', marginTop: '0.75rem', fontSize: '0.85rem' }}>
+                    <Link to="/forgot-password" style={{ color: 'var(--primary)' }}>Forgot password?</Link>
+                </p>
                 <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                     Don't have an account? <Link to="/register" style={{ color: 'var(--primary)' }}>Register</Link>
                 </p>

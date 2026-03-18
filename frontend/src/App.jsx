@@ -12,6 +12,8 @@ import StudentDashboard from './pages/StudentDashboard';
 import AdminPanel from './pages/AdminPanel';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Contact from './pages/Contact';
 import Footer from './components/Footer';
 
@@ -20,6 +22,13 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   if (loading) return <div>Loading...</div>;
   if (!user) return <Navigate to='/login' />;
   if (adminOnly && user.role !== 'admin') return <Navigate to='/' />;
+  return children;
+};
+
+const GuestRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return <div>Loading...</div>;
+  if (user) return <Navigate to='/' />;
   return children;
 };
 
@@ -32,12 +41,14 @@ function AppContent() {
           <Routes>
             <Route path='/' element={<Home />} />
             <Route path='/courses' element={<Courses />} />
-            <Route path='/login' element={<Login />} />
-            <Route path='/register' element={<Register />} />
+            <Route path='/login' element={<GuestRoute><Login /></GuestRoute>} />
+            <Route path='/register' element={<GuestRoute><Register /></GuestRoute>} />
             <Route path='/course/:id' element={<CourseDetail />} />
             <Route path='/privacy' element={<PrivacyPolicy />} />
             <Route path='/terms' element={<Terms />} />
             <Route path='/contact' element={<Contact />} />
+            <Route path='/forgot-password' element={<GuestRoute><ForgotPassword /></GuestRoute>} />
+            <Route path='/reset-password/:token' element={<GuestRoute><ResetPassword /></GuestRoute>} />
             <Route path='/dashboard' element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
             <Route path='/admin' element={<ProtectedRoute adminOnly={true}><AdminPanel /></ProtectedRoute>} />
           </Routes>
