@@ -12,7 +12,13 @@ const app = express();
 const PORT = process.env.PORT;
 
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET","POST","PUT","DELETE"],
+    credentials:true
+  }));
+  
 app.get("/" , (req , res)=>{
   res.send("app is now running")
 })
