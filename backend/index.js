@@ -14,9 +14,9 @@ const PORT = process.env.PORT;
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://courses-f.vercel.app",
+    origin: "*",
     methods: ["GET","POST","PUT","DELETE"],
-    credentials:true
+    // credentials:true
   }));
   
 app.get("/" , (req , res)=>{
