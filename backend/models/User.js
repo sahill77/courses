@@ -14,6 +14,8 @@ const userSchema = new mongoose.Schema(
     enrolledCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Course" }],
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
+    isApproved: { type: Boolean, default: true },
+    isBlocked: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

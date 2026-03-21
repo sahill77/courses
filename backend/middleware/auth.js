@@ -25,3 +25,16 @@ export const adminAuth = (req, res, next) => {
     }
     next();
 };
+
+export const instructorAuth = (req, res, next) => {
+    if (req.user.role !== 'instructor') {
+        return res.status(403).send({ error: 'Instructor access denied.' });
+    }
+    if (req.user.isBlocked) {
+        return res.status(403).send({ error: 'Your account has been suspended. Please contact the administrator.', code: 'BLOCKED' });
+    }
+    if (!req.user.isApproved) {
+        return res.status(403).send({ error: 'Your account is pending admin approval.', code: 'PENDING_APPROVAL' });
+    }
+    next();
+};

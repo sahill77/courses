@@ -13,8 +13,12 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await login(email, password);
-            navigate('/');
+            const loggedInUser = await login(email, password);
+            if (loggedInUser.role === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/');
+            }
         } catch (err) {
             const message = err.response?.data?.error || err.message || 'Login failed';
             setError(typeof message === 'object' ? JSON.stringify(message) : String(message));
@@ -22,7 +26,7 @@ export default function Login() {
     };
 
     return (
-        <div className="animate-fade-in" style={{ maxWidth: '400px', margin: '4rem auto' }}>
+        <div className="animate-fade-in" style={{ maxWidth: '400px', margin: '2rem auto', padding: '0 0.5rem' }}>
             <div className="glass" style={{ padding: '2rem' }}>
                 <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                     <LogIn color="var(--primary)" /> SparksStream

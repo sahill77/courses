@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -10,52 +10,105 @@ import Register from './pages/Register';
 import CourseDetail from './pages/CourseDetail';
 import StudentDashboard from './pages/StudentDashboard';
 import AdminPanel from './pages/AdminPanel';
+import InstructorPanel from './pages/InstructorPanel';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import SettingsPage from './pages/SettingsPage';
 import Contact from './pages/Contact';
+import LearningMode from './pages/LearningMode';
 import Footer from './components/Footer';
 
-const ProtectedRoute = ({ children, adminOnly = false }) => {
+// Requires login; admins/instructors are redirected to their panels
+const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return <div>Loading...</div>;
   if (!user) return <Navigate to='/login' />;
-  if (adminOnly && user.role !== 'admin') return <Navigate to='/' />;
+  if (user.role === 'admin') return <Navigate to='/admin' />;
+  if (user.role === 'instructor') return <Navigate to='/instructor' />;
   return children;
 };
 
+// Admin-only route
+const AdminRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return <div>Loading...</div>;
+  if (!user) return <Navigate to='/login' />;
+  if (user.role !== 'admin') return <Navigate to='/' />;
+  return children;
+};
+
+// Instructor-only route
+const InstructorRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return <div>Loading...</div>;
+  if (!user) return <Navigate to='/login' />;
+  if (user.role !== 'instructor') return <Navigate to='/' />;
+  return children;
+};
+
+// Redirect logged-in users away from guest pages
 const GuestRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return <div>Loading...</div>;
-  if (user) return <Navigate to='/' />;
+  if (user) {
+    if (user.role === 'admin') return <Navigate to='/admin' />;
+    if (user.role === 'instructor') return <Navigate to='/instructor' />;
+    return <Navigate to='/' />;
+  }
+  return children;
+};
+
+// Redirect admins/instructors away from user-facing pages
+const AdminRedirect = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return <div>Loading...</div>;
+  if (user?.role === 'admin') return <Navigate to='/admin' />;
+  if (user?.role === 'instructor') return <Navigate to='/instructor' />;
   return children;
 };
 
 function AppContent() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const isInstructor = user?.role === 'instructor';
+
   return (
     <Router>
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <Navbar />
+        {!isAdmin && !isInstructor && <Navbar />}
         <main className='container' style={{ flex: 1 }}>
           <Routes>
-            <Route path='/' element={<Home />} />
-            <Route path='/courses' element={<Courses />} />
-            <Route path='/login' element={<GuestRoute><Login /></GuestRoute>} />
-            <Route path='/register' element={<GuestRoute><Register /></GuestRoute>} />
-            <Route path='/course/:id' element={<CourseDetail />} />
+            {/* Public user-facing pages — admins/instructors get bounced */}
+            <Route path='/' element={<AdminRedirect><Home /></AdminRedirect>} />
+            <Route path='/courses' element={<AdminRedirect><Courses /></AdminRedirect>} />
+            <Route path='/course/:id' element={<AdminRedirect><CourseDetail /></AdminRedirect>} />
+            <Route path='/contact' element={<AdminRedirect><Contact /></AdminRedirect>} />
             <Route path='/privacy' element={<PrivacyPolicy />} />
             <Route path='/terms' element={<Terms />} />
-            <Route path='/contact' element={<Contact />} />
-            <Route path='/settings' element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+
+            {/* Guest-only routes */}
+            <Route path='/login' element={<GuestRoute><Login /></GuestRoute>} />
+            <Route path='/register' element={<GuestRoute><Register /></GuestRoute>} />
             <Route path='/forgot-password' element={<GuestRoute><ForgotPassword /></GuestRoute>} />
             <Route path='/reset-password/:token' element={<GuestRoute><ResetPassword /></GuestRoute>} />
+
+            {/* Student-only routes */}
             <Route path='/dashboard' element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
-            <Route path='/admin' element={<ProtectedRoute adminOnly={true}><AdminPanel /></ProtectedRoute>} />
+            <Route path='/learn/:id' element={<ProtectedRoute><LearningMode /></ProtectedRoute>} />
+            <Route path='/settings' element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+
+            {/* Admin-only routes */}
+            <Route path='/admin' element={<AdminRoute><AdminPanel /></AdminRoute>} />
+
+            {/* Instructor-only routes */}
+            <Route path='/instructor' element={<InstructorRoute><InstructorPanel /></InstructorRoute>} />
+
+            <Route path='*' element={<Navigate to='/' />} />
           </Routes>
         </main>
-        <Footer />
+        {!isAdmin && !isInstructor && <Footer />}
       </div>
     </Router>
   );

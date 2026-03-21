@@ -11,18 +11,24 @@ export default function Courses() {
     const categoryQuery = searchParams.get('category') || '';
     const [search, setSearch] = useState('');
 
+    const [categories, setCategories] = useState([]);
+
     useEffect(() => {
-        const fetchCourses = async () => {
+        const fetchData = async () => {
             try {
-                const { data } = await axios.get('/courses');
-                setCourses(data);
+                const [coursesRes, catsRes] = await Promise.all([
+                    axios.get('/courses'),
+                    axios.get('/categories')
+                ]);
+                setCourses(coursesRes.data);
+                setCategories(catsRes.data);
             } catch (err) {
                 console.error(err);
             } finally {
                 setLoading(false);
             }
         };
-        fetchCourses();
+        fetchData();
     }, []);
 
     const filteredCourses = courses.filter(c => {
@@ -32,7 +38,6 @@ export default function Courses() {
         return matchesSearch && matchesCategory;
     });
 
-    const categories = ['Development', 'Design', 'Analysis', 'Marketing'];
 
     return (
         <div className="animate-fade-in" style={{ marginTop: '1.5rem' }}>
@@ -95,21 +100,41 @@ export default function Courses() {
                             </button>
                             {categories.map(cat => (
                                 <button
-                                    key={cat}
-                                    onClick={() => setSearchParams({ category: cat })}
+                                    key={cat._id}
+                                    onClick={() => setSearchParams({ category: cat.name })}
                                     style={{
                                         textAlign: 'left',
                                         padding: '0.6rem 1rem',
                                         borderRadius: '6px',
-                                        background: categoryQuery === cat ? 'rgba(99,102,241,0.1)' : 'transparent',
-                                        color: categoryQuery === cat ? 'var(--primary)' : 'var(--text-muted)',
+                                        background: categoryQuery === cat.name ? 'rgba(99,102,241,0.1)' : 'transparent',
+                                        color: categoryQuery === cat.name ? 'var(--primary)' : 'var(--text-muted)',
                                         border: 'none',
                                         cursor: 'pointer',
                                         fontSize: '0.9rem',
-                                        transition: 'var(--transition)'
+                                        transition: 'var(--transition)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.75rem'
                                     }}
                                 >
-                                    {cat}
+                                    <span style={{ 
+                                        width: '24px', 
+                                        height: '24px', 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        justifyContent: 'center',
+                                        borderRadius: '4px',
+                                        overflow: 'hidden',
+                                        background: 'rgba(255,255,255,0.05)',
+                                        flexShrink: 0
+                                    }}>
+                                        {cat.icon?.includes('http') || cat.icon?.startsWith('data:image') || cat.icon?.includes('/') ? (
+                                            <img src={cat.icon} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        ) : (
+                                            <span style={{ fontSize: '0.9rem', lineHeight: 1, fontWeight: 700, color: cat.color || 'var(--primary)' }}>{cat.icon || (cat.name ? cat.name.charAt(0).toUpperCase() : '?')}</span>
+                                        )}
+                                    </span>
+                                    {cat.name}
                                 </button>
                             ))}
                         </div>

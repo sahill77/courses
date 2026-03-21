@@ -92,11 +92,14 @@ export default function Navbar() {
 
                   {profileOpen && (
                     <div style={{
-                      position: 'fixed', top: '74px', right: '1rem',
-                      width: 'min(260px, calc(100vw - 2rem))',
+                      position: isMenuOpen ? 'relative' : 'absolute', 
+                      top: isMenuOpen ? '0.5rem' : '50px', 
+                      right: isMenuOpen ? '0' : '0',
+                      width: isMenuOpen ? '100%' : 'min(260px, calc(100vw - 2rem))',
                       background: 'var(--bg-card)', border: '1px solid var(--border)',
                       borderRadius: '14px', boxShadow: '0 12px 36px rgba(0,0,0,0.25)',
-                      backdropFilter: 'blur(12px)', zIndex: 999, overflow: 'hidden'
+                      backdropFilter: 'blur(12px)', zIndex: 999, overflow: 'hidden',
+                      marginTop: isMenuOpen ? '0.5rem' : '0'
                     }}>
                       {/* User Info Header */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)', background: 'rgba(99,102,241,0.05)' }}>

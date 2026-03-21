@@ -7,10 +7,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: "https://courses-rosy-zeta.vercel.app",
+        target: "http://localhost:5000",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, "")
-      },  
+      },
     },
   },
 });

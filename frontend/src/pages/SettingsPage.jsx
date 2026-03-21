@@ -4,6 +4,29 @@ import { useAuth } from '../context/AuthContext';
 import { ChevronLeft, Settings, User, Mail, Lock, Save, CheckCircle } from 'lucide-react';
 import axios from '../services/api';
 
+const Section = ({ title, field, children, onSave, messages, saving }) => (
+    <div className="glass" style={{ padding: '1.5rem', borderRadius: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>{title}</h3>
+            {messages[field] && (
+                <span style={{ fontSize: '0.8rem', color: messages[field].type === 'success' ? '#22c55e' : '#ef4444', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    {messages[field].type === 'success' && <CheckCircle size={14} />}
+                    {messages[field].text}
+                </span>
+            )}
+        </div>
+        {children}
+        <button
+            onClick={onSave}
+            disabled={saving === field}
+            className="btn btn-primary"
+            style={{ marginTop: '1rem', padding: '0.6rem 1.5rem', fontSize: '0.9rem', gap: '0.5rem' }}
+        >
+            <Save size={15} /> {saving === field ? 'Saving...' : 'Save Changes'}
+        </button>
+    </div>
+);
+
 export default function SettingsPage() {
     const { user, updateUser } = useAuth();
     const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
@@ -50,28 +73,7 @@ export default function SettingsPage() {
     };
     const iconStyle = { position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' };
 
-    const Section = ({ title, field, children, onSave }) => (
-        <div className="glass" style={{ padding: '1.5rem', borderRadius: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>{title}</h3>
-                {messages[field] && (
-                    <span style={{ fontSize: '0.8rem', color: messages[field].type === 'success' ? '#22c55e' : '#ef4444', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                        {messages[field].type === 'success' && <CheckCircle size={14} />}
-                        {messages[field].text}
-                    </span>
-                )}
-            </div>
-            {children}
-            <button
-                onClick={onSave}
-                disabled={saving === field}
-                className="btn btn-primary"
-                style={{ marginTop: '1rem', padding: '0.6rem 1.5rem', fontSize: '0.9rem', gap: '0.5rem' }}
-            >
-                <Save size={15} /> {saving === field ? 'Saving...' : 'Save Changes'}
-            </button>
-        </div>
-    );
+
 
     return (
         <div className="animate-fade-in" style={{ maxWidth: '600px', margin: '1.5rem auto' }}>
@@ -97,7 +99,7 @@ export default function SettingsPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 {/* Name */}
-                <Section title="Display Name" field="name" onSave={() => handleSave('name')}>
+                <Section title="Display Name" field="name" onSave={() => handleSave('name')} messages={messages} saving={saving}>
                     <div style={{ position: 'relative' }}>
                         <User size={17} style={iconStyle} />
                         <input
@@ -111,7 +113,7 @@ export default function SettingsPage() {
                 </Section>
 
                 {/* Email */}
-                <Section title="Email Address" field="email" onSave={() => handleSave('email')}>
+                <Section title="Email Address" field="email" onSave={() => handleSave('email')} messages={messages} saving={saving}>
                     <div style={{ position: 'relative' }}>
                         <Mail size={17} style={iconStyle} />
                         <input
@@ -125,7 +127,7 @@ export default function SettingsPage() {
                 </Section>
 
                 {/* Password */}
-                <Section title="Change Password" field="password" onSave={() => handleSave('password')}>
+                <Section title="Change Password" field="password" onSave={() => handleSave('password')} messages={messages} saving={saving}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                         <div style={{ position: 'relative' }}>
                             <Lock size={17} style={iconStyle} />

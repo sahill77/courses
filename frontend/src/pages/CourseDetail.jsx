@@ -2,7 +2,64 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { CheckCircle, PlayCircle, BookOpen, User, ChevronDown, ChevronLeft } from 'lucide-react';
+import { CheckCircle, PlayCircle, BookOpen, User, ChevronDown, ChevronLeft, Lock } from 'lucide-react';
+
+const ModuleItem = ({ module, isEnrolled, index }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+        <div style={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', background: 'rgba(0,0,0,0.02)' }}>
+            <button
+                onClick={() => isEnrolled && setIsOpen(!isOpen)}
+                style={{ width: '100%', padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', background: 'transparent', color: 'var(--text-main)', textAlign: 'left', cursor: isEnrolled ? 'pointer' : 'default', border: 'none', transition: 'background 0.2s' }}
+            >
+                <div style={{ background: 'rgba(99,102,241,0.1)', color: 'var(--primary)', padding: '0.4rem', borderRadius: '50%', display: 'flex' }}>
+                    {isEnrolled ? <PlayCircle size={20} /> : <Lock size={20} color="var(--text-muted)" />}
+                </div>
+                <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600, fontSize: '1rem', color: isEnrolled ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                        {index}. {module.title}
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>{module.description}</div>
+                </div>
+                {isEnrolled && (
+                    <ChevronDown size={20} style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s', color: 'var(--primary)', flexShrink: 0 }} />
+                )}
+            </button>
+            {isEnrolled && (
+                <div style={{
+                    maxHeight: isOpen ? '800px' : '0',
+                    overflow: 'hidden',
+                    transition: 'all 0.3s ease-in-out',
+                    background: 'rgba(0,0,0,0.05)'
+                }}>
+                    <div style={{ padding: '1.25rem', borderTop: '1px solid var(--border)' }}>
+                        {module.videoUrl ? (
+                            module.videoUrl.includes('youtube.com') || module.videoUrl.includes('youtu.be') ? (
+                                <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '8px' }}>
+                                    <iframe 
+                                        src={module.videoUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')} 
+                                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
+                                        allowFullScreen
+                                        title={module.title}
+                                    />
+                                </div>
+                            ) : (
+                                <video controls style={{ width: '100%', borderRadius: '8px', background: '#000' }}>
+                                    <source src={module.videoUrl} type="video/mp4" />
+                                    Your browser does not support the video tag.
+                                </video>
+                            )
+                        ) : (
+                            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)', border: '1px dashed var(--border)', borderRadius: '8px' }}>
+                                No video content available for this module.
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
 
 const FAQItem = ({ faq }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -102,13 +159,7 @@ export default function CourseDetail() {
                         <h2 style={{ fontSize: '1.3rem', marginBottom: '1.5rem' }}>Course Content</h2>
                         <div style={{ display: 'grid', gap: '1rem' }}>
                             {course.content?.map((module, index) => (
-                                <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', border: '1px solid var(--border)', borderRadius: '8px', background: 'rgba(0,0,0,0.03)' }}>
-                                    <PlayCircle size={20} color="var(--primary)" />
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ fontWeight: 600 }}>{module.title}</div>
-                                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{module.description}</div>
-                                    </div>
-                                </div>
+                                <ModuleItem key={index} module={module} isEnrolled={isEnrolled} index={index + 1} />
                             ))}
                             {(!course.content || course.content.length === 0) && (
                                 <div style={{ color: 'var(--text-muted)' }}>No curriculum added yet for this course.</div>

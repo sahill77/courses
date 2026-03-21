@@ -7,24 +7,28 @@ import { useAuth } from '../context/AuthContext';
 
 export default function Home() {
     const [courses, setCourses] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
     const { user } = useAuth();
 
-        useEffect(() => {
-            const fetchCourses = async () => {
-                try {
-                    const { data } = await axios.get('/courses');
-                    // For home page, we only show top 4 courses
-                    setCourses(data.slice(0, 4));
-                } catch (err) {
-                    console.error(err);
-                } finally {
-                    setLoading(false);
-                }
-            };
-            fetchCourses();
-        }, []);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [coursesRes, catsRes] = await Promise.all([
+                    axios.get('/courses'),
+                    axios.get('/categories')
+                ]);
+                setCourses(coursesRes.data.slice(0, 4));
+                setCategories(catsRes.data.filter(c => c.showOnHome));
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
 
 
     return (
@@ -35,7 +39,7 @@ export default function Home() {
                 gap: '3rem',
                 alignItems: 'center',
                 marginBottom: '4rem'
-            }} className="grid grid-2">
+            }} className="grid grid-2 mobile-center">
                 <div>
                     <div style={{
                         display: 'inline-flex',
@@ -54,10 +58,10 @@ export default function Home() {
                     <h1 style={{ lineHeight: 1.1, marginBottom: '1.5rem', fontWeight: 800 }} className="text-h1">
                         Master Your Craft with <span style={{ color: 'var(--primary)' }}>Expert-Led</span> Courses
                     </h1>
-                    <p style={{ fontSize: '1.15rem', color: 'var(--text-muted)', marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '550px' }}>
+                    <p style={{ fontSize: '1.15rem', color: 'var(--text-muted)', marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '550px', marginLeft: 'auto', marginRight: 'auto' }} className="mobile-full">
                         Join over 10,000+ students worldwide. Learn web development, design, busines, and more from industry professionals.
                     </p>
-                    <div style={{ display: 'flex', gap: '1rem' }} className="stack-on-mobile">
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'inherit' }} className="stack-on-mobile">
                         <Link to="/courses" className="btn btn-primary" style={{ padding: '0.8rem 2rem', fontSize: '1rem', gap: '0.75rem', color: '#fff' }}>
                             Explore All Courses <ArrowRight size={18} />
                         </Link>
@@ -68,7 +72,7 @@ export default function Home() {
                         )}
                     </div>
                 </div>
-                <div style={{ position: 'relative' }}>
+                <div style={{ position: 'relative' }} className="hide-on-mobile">
                     <div className="glass shadow-lg" style={{
                         aspectRatio: '16/10',
                         borderRadius: '24px',
@@ -117,33 +121,52 @@ export default function Home() {
                 </div>
             </div>
 
-            {/* Browse Categories Section */}
             <section style={{ marginBottom: '5rem' }}>
-                <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-                    <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Browse Our Categories</h2>
-                    <p style={{ color: 'var(--text-muted)' }}>Explore our top categories and find the right path for you.</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem' }}>
+                    <div>
+                        <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Browse Our Categories</h2>
+                        <p style={{ color: 'var(--text-muted)' }}>Explore our top categories and find the right path for you.</p>
+                    </div>
+                    <Link to="/courses" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        View All <ArrowRight size={16} />
+                    </Link>
                 </div>
                 <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem' }}>
-                    {[
-                        { name: 'Development', icon: '💻', color: 'var(--primary)', bg: 'rgba(99,102,241,0.1)', desc: 'Web, Mobile & Software' },
-                        { name: 'Design', icon: '🎨', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', desc: 'UI/UX & Graphic Design' },
-                        { name: 'Marketing', icon: '📈', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', desc: 'Digital & Social Media' },
-                        { name: 'Analysis', icon: '📊', color: '#22c55e', bg: 'rgba(34,197,94,0.1)', desc: 'Data & Business Analysis' },
-                    ].map(cat => (
+                    {categories.map(cat => (
                         <Link
-                            key={cat.name}
+                            key={cat._id}
                             to={`/courses?category=${cat.name}`}
                             className="glass"
                             style={{ padding: '2rem 1.5rem', borderRadius: '16px', textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', textAlign: 'center', transition: 'var(--transition)', border: '1px solid var(--border)' }}
-                            onMouseOver={(e) => e.currentTarget.style.borderColor = cat.color}
+                            onMouseOver={(e) => e.currentTarget.style.borderColor = cat.color || 'var(--primary)'}
                             onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
                         >
-                            <div style={{ fontSize: '2.5rem', background: cat.bg, padding: '1rem', borderRadius: '16px', lineHeight: 1 }}>{cat.icon}</div>
-                            <div>
-                                <div style={{ fontWeight: 700, fontSize: '1.1rem', color: cat.color, marginBottom: '0.25rem' }}>{cat.name}</div>
-                                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{cat.desc}</div>
+                            <div style={{ 
+                                background: (cat.color && cat.color.startsWith('#')) ? `${cat.color}22` : 'rgba(99,102,241,0.1)', 
+                                padding: '0.75rem', 
+                                borderRadius: '16px', 
+                                width: '80px',
+                                height: '80px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                                overflow: 'hidden',
+                                border: '1px solid rgba(255,255,255,0.1)'
+                            }}>
+                                {cat.icon?.includes('http') || cat.icon?.startsWith('data:image') || cat.icon?.includes('/') ? (
+                                    <img src={cat.icon} alt={cat.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                    <span style={{ fontSize: '2.5rem', lineHeight: 1, fontWeight: 800 }}>
+                                        {cat.icon || (cat.name ? cat.name.charAt(0).toUpperCase() : '?')}
+                                    </span>
+                                )}
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: cat.color, fontWeight: 600 }}>
+                            <div>
+                                <div style={{ fontWeight: 700, fontSize: '1.1rem', color: cat.color || 'var(--primary)', marginBottom: '0.25rem' }}>{cat.name}</div>
+                                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{cat.description || 'Explore courses'}</div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: cat.color || 'var(--primary)', fontWeight: 600 }}>
                                 Explore <ArrowRight size={14} />
                             </div>
                         </Link>

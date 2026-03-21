@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import Course from "./models/Course.js";
 import User from "./models/User.js";
 import Enrollment from "./models/Enrollment.js";
+import Category from "./models/Category.js";
 
 dotenv.config();
 
@@ -11,7 +12,7 @@ const courses = [
     title: "Complete Web Development",
     description:
       "Learn HTML, CSS, JavaScript, React, and Node.js from scratch.",
-    thumbnail: "/images/courses/web-dev.png",
+    thumbnail: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800",
     instructor: "John Doe",
     category: "Development",
     price: 5000,
@@ -42,7 +43,7 @@ const courses = [
     title: "Python for Data Science",
     description:
       "Master Python and libraries like Pandas, NumPy, and Scikit-learn.",
-    thumbnail: "/images/courses/data-science.png",
+    thumbnail: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?auto=format&fit=crop&q=80&w=800",
     instructor: "Jane Smith",
     category: "Development",
     price: 6000,
@@ -69,7 +70,7 @@ const courses = [
     title: "Advanced Software Development",
     description:
       "Master software architecture, design patterns, and testing strategies.",
-    thumbnail: "/images/courses/software-dev.png",
+    thumbnail: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800",
     instructor: "Robert Martin",
     category: "Development",
     price: 7000,
@@ -99,7 +100,7 @@ const courses = [
     title: "iOS & Android App Development",
     description:
       "Build high-performance mobile apps using React Native and Flutter.",
-    thumbnail: "/images/courses/mobile-dev.png",
+    thumbnail: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&q=80&w=800",
     instructor: "Angela Yu",
     category: "Development",
     price: 8000,
@@ -125,7 +126,7 @@ const courses = [
     title: "Game Development",
     description:
       "Create professional 2D and 3D games from scratch using C# and Unity.",
-    thumbnail: "/images/courses/game-dev.png",
+    thumbnail: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?auto=format&fit=crop&q=80&w=800",
     instructor: "Rick Davidson",
     category: "Development",
     price: 9000,
@@ -151,7 +152,7 @@ const courses = [
   {
     title: "Cyber Security Fundamentals",
     description: "Protect systems and networks from digital attacks.",
-    thumbnail: "/images/courses/cybersecurity.png",
+    thumbnail: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800",
     instructor: "Kevin Mitnick",
     category: "Analysis",
     price: 8000,
@@ -205,7 +206,7 @@ const courses = [
   {
     title: "Figma Masterclass",
     description: "Learn how to use Figma for professional design workflows.",
-    thumbnail: "/images/courses/figma-masterclass.png",
+    thumbnail: "https://images.unsplash.com/photo-1542744094-24638ea0b3b5?auto=format&fit=crop&q=80&w=800",
     instructor: "Gary Simon",
     category: "Design",
     price: 5000,
@@ -258,7 +259,7 @@ const courses = [
     title: "Data Analysis",
     description:
       "Master the art of interpreting complex data sets to make informed decisions.",
-    thumbnail: "/images/courses/data-analysis.png",
+    thumbnail: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800",
     instructor: "Dr. Linda Fox",
     category: "Analysis",
     price: 6000,
@@ -292,7 +293,7 @@ const courses = [
     title: "Social Media Marketing",
     description:
       "Master social media strategies, audience engagement, and platform analytics.",
-    thumbnail: "/images/courses/social-media-marketing.png",
+    thumbnail: "https://images.unsplash.com/photo-1432888117426-15cabae8dc68?auto=format&fit=crop&q=80&w=800",
     instructor: "Sarah Jenkins",
     category: "Marketing",
     price: 3000,
@@ -319,7 +320,7 @@ const courses = [
     title: "Blogging",
     description:
       "Create compelling content, build an audience, and monetize your blog.",
-    thumbnail: "/images/courses/blogging.png",
+    thumbnail: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80&w=800",
     instructor: "David Miller",
     category: "Marketing",
     price: 3000,
@@ -353,6 +354,17 @@ const seedDB = async () => {
 
     await Enrollment.deleteMany({});
     console.log("Cleared existing enrollments");
+
+    await Category.deleteMany({});
+    console.log("Cleared existing categories");
+    const defaultCategories = [
+      { name: 'Development', icon: '💻', color: '#6366f1', description: 'Master modern programming languages and frameworks.', showOnHome: true },
+      { name: 'Design', icon: '🎨', color: '#ec4899', description: 'Learn UI/UX, graphic design, and creative tools.', showOnHome: true },
+      { name: 'Marketing', icon: '📈', color: '#10b981', description: 'Digital marketing, SEO, and social media strategy.', showOnHome: true },
+      { name: 'Analysis', icon: '📊', color: '#f59e0b', description: 'Data science, business intelligence, and statistics.', showOnHome: true }
+    ];
+    await Category.insertMany(defaultCategories);
+    console.log("Default categories added");
 
     await Course.deleteMany({});
     console.log("Cleared existing courses");

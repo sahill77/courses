@@ -1,15 +1,27 @@
 import express from "express";
-import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+import connectDB from "./config/db.js";
+
 import authRoutes from "./routes/auth.js";
 import courseRoutes from "./routes/courses.js";
 import adminRoutes from "./routes/admin.js";
+import categoryRoutes from "./routes/categories.js";
+import uploadRoutes from "./routes/upload.js";
+import instructorRoutes from "./routes/instructor.js";
 
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
+
+// Connect to Database
+connectDB();
 
 app.use(express.json());
 app.use(
@@ -18,30 +30,26 @@ app.use(
       "https://courses-f.vercel.app",
       "http://localhost:5173",
       "http://localhost:5174",
-      "http://localhost:3000"
+      "http://localhost:3000",
     ],
-    methods: ["GET","POST","PUT","DELETE"],
-    credentials: true
-  }));
-  
-app.get("/" , (req , res)=>{
-  res.send("app is now running")
-})
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 
+app.get("/", (req, res) => {
+  res.send("app is now running");
+});
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/upload", uploadRoutes);
+app.use("/api/instructor", instructorRoutes);
 
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log("Connected to MongoDB");
-
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.log("Error connecting to MongoDB:", err);
-  });
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
