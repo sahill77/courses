@@ -58,7 +58,7 @@ export default function Home() {
                     <h1 style={{ lineHeight: 1.1, marginBottom: '1.5rem', fontWeight: 800 }} className="text-h1">
                         Master Your Craft with <span style={{ color: 'var(--primary)' }}>Expert-Led</span> Courses
                     </h1>
-                    <p style={{ fontSize: '1.15rem', color: 'var(--text-muted)', marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '550px', marginLeft: 'auto', marginRight: 'auto' }} className="mobile-full">
+                    <p style={{ fontSize: '1.15rem', color: 'var(--text-muted)', marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '550px' }} className="mobile-full">
                         Join over 10,000+ students worldwide. Learn web development, design, busines, and more from industry professionals.
                     </p>
                     <div style={{ display: 'flex', gap: '1rem', justifyContent: 'inherit' }} className="stack-on-mobile">

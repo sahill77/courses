@@ -110,13 +110,66 @@ export default function CourseDetail() {
 
     const handleEnroll = async () => {
         if (!user) return navigate('/login');
+        
+        // If course is free (price is 0), use the old direct enrollment
+        if (course.price === 0) {
+            setEnrolling(true);
+            try {
+                await axios.post(`/courses/${id}/enroll`);
+                alert('Successfully enrolled!');
+                navigate('/dashboard');
+            } catch (err) {
+                alert(err.response?.data?.error || 'Enrollment failed');
+            } finally {
+                setEnrolling(false);
+            }
+            return;
+        }
+
+        // Razorpay Payment Flow
         setEnrolling(true);
         try {
-            await axios.post(`/courses/${id}/enroll`);
-            alert('Successfully enrolled!');
-            navigate('/dashboard');
+            // 1. Create order on backend
+            const { data: orderData } = await axios.post('/payments/order', { courseId: id });
+
+            // 2. Configure Razorpay options
+            const options = {
+                key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_your_key_here', // Use env variable if available
+                amount: orderData.amount,
+                currency: orderData.currency,
+                name: "SparksStream",
+                description: `Purchase Course: ${course.title}`,
+                image: "/vite.svg",
+                order_id: orderData.id,
+                handler: async function (response) {
+                    try {
+                        // 3. Verify payment on backend
+                        const verifyResult = await axios.post('/payments/verify', {
+                            ...response,
+                            courseId: id
+                        });
+                        alert(verifyResult.data.message || 'Successfully enrolled!');
+                        navigate('/dashboard');
+                    } catch (verifyErr) {
+                        alert(verifyErr.response?.data?.error || 'Payment verification failed');
+                    }
+                },
+                prefill: {
+                    name: user.name,
+                    email: user.email,
+                },
+                theme: {
+                    color: "#6366f1", // Match primary color
+                },
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.on('payment.failed', function (response) {
+                alert(response.error.description);
+            });
+            rzp.open();
         } catch (err) {
-            alert(err.response?.data?.error || 'Enrollment failed');
+            alert(err.response?.data?.error || 'Failed to initiate payment');
         } finally {
             setEnrolling(false);
         }
@@ -153,6 +206,11 @@ export default function CourseDetail() {
                         <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{course.category}</span>
                         <h1 style={{ fontSize: '2.5rem', margin: '0.5rem 0' }}>{course.title}</h1>
                         <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>{course.description}</p>
+                    </div>
+
+                    <div style={{ background: 'rgba(99,102,241,0.1)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(99,102,241,0.2)' }}>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Instructor</div>
+                        <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#fff' }}>{course.instructor?.name || course.instructor || '—'}</div>
                     </div>
 
                     <div className="glass" style={{ padding: '2rem', marginBottom: '2rem' }}>
@@ -217,7 +275,7 @@ export default function CourseDetail() {
                         )}
 
                         <div style={{ marginTop: '1.5rem', display: 'grid', gap: '1rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}><User size={16} /> Instructor: {course.instructor}</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}><User size={16} /> Instructor: {course.instructor?.name || course.instructor}</div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}><BookOpen size={16} /> Lifetime Access</div>
                         </div>
                     </div>

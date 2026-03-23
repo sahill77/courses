@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../services/api';
-import { PlusCircle, Edit, Trash2, Settings, Users, BookOpen, CheckCircle, LogOut, BarChart2, Activity, Save, User, Mail, Lock, Layers, X, Plus, Video, HelpCircle, Clock, ShieldOff, AlertTriangle } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Settings, Users, BookOpen, CheckCircle, LogOut, BarChart2, Activity, Save, User, Mail, Lock, Layers, X, Plus, Video, HelpCircle, Clock, ShieldOff, AlertTriangle, Menu } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import InstructorSidebar from '../features/instructor/InstructorSidebar';

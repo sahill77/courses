@@ -206,12 +206,38 @@ export default function AdminPanel() {
     } catch (err) { alert('Failed to approve course'); }
   };
   const handleRejectCourse = async (id) => {
-    if (!window.confirm('Reject this course?')) return;
+    if (!window.confirm('Are you sure you want to reject and delete this course?')) return;
     try {
       await axios.put(`/admin/courses/${id}/reject`);
       fetchPendingCourses();
       fetchCourses();
     } catch (err) { alert('Failed to reject course'); }
+  };
+
+  // Admin delete actions
+  const handleDeleteCategory = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this category?')) return;
+    try {
+      await axios.delete(`/admin/categories/${id}`);
+      fetchCategories();
+    } catch (err) { alert('Failed to delete category'); }
+  };
+  const handleDeleteUser = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this user? All their enrollments will be removed.')) return;
+    try {
+      await axios.delete(`/admin/users/${id}`);
+      fetchUsers();
+      fetchStats();
+    } catch (err) { alert('Failed to delete user'); }
+  };
+  const handleDeleteInstructor = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this instructor? All their courses and enrollments will be removed.')) return;
+    try {
+      await axios.delete(`/admin/instructors/${id}`);
+      fetchInstructors();
+      fetchCourses();
+      fetchStats();
+    } catch (err) { alert('Failed to delete instructor'); }
   };
 
   useEffect(() => {
@@ -307,7 +333,7 @@ export default function AdminPanel() {
         await axios.post('/admin/courses', courseData);
       }
       setShowModal(false);
-      setCurrentCourse({ title: '', description: '', instructor: '', category: '', price: '' });
+      setCurrentCourse({ title: '', description: '', instructor: '', category: '', price: '', thumbnail: '' });
       setCustomCategory('');
       fetchCourses();
       fetchCategories();
@@ -376,7 +402,7 @@ export default function AdminPanel() {
                   <tr key={course._id} style={{ borderBottom: '1px solid var(--border)' }}>
                     <td style={{ padding: '1rem 1.25rem' }}>{course.title}</td>
                     <td style={{ padding: '1rem 1.25rem' }}><span style={{ background: 'rgba(99,102,241,0.1)', color: 'var(--primary)', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem' }}>{course.category}</span></td>
-                    <td style={{ padding: '1rem 1.25rem' }}>{course.instructor}</td>
+                    <td style={{ padding: '1rem 1.25rem' }}>{course.instructor?.name || course.instructor || '—'}</td>
                     <td style={{ padding: '1rem 1.25rem' }}>₹{Math.floor(course.price)}</td>
                     <td style={{ padding: '1rem 1.25rem', display: 'flex', gap: '0.5rem' }}>
                       <button className="btn btn-ghost" style={{ padding: '0.4rem', color: 'var(--primary)' }} onClick={() => setContentModalCourse(course)} title="Manage Content & FAQs"><Layers size={16} /></button>
@@ -433,7 +459,10 @@ export default function AdminPanel() {
                       )}
                     </td>
                     <td style={{ padding: '1rem 1.25rem', overflow: 'hidden' }}>
-                      <button className="btn btn-ghost" style={{ padding: '0.4rem' }} onClick={() => { setCurrentCategory(cat); setShowCategoryModal(true); }}><Edit size={16} /></button>
+                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                        <button className="btn btn-ghost" style={{ padding: '0.4rem' }} onClick={() => { setCurrentCategory(cat); setShowCategoryModal(true); }}><Edit size={16} /></button>
+                        <button className="btn btn-ghost" style={{ padding: '0.4rem', color: '#ef4444' }} onClick={() => handleDeleteCategory(cat._id)}><Trash2 size={16} /></button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -457,6 +486,7 @@ export default function AdminPanel() {
                   <th style={{ padding: '1.25rem' }}>Email</th>
                   <th style={{ padding: '1.25rem' }}>Enrolled Courses</th>
                   <th style={{ padding: '1.25rem' }}>Joined On</th>
+                  <th style={{ padding: '1.25rem' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -484,6 +514,13 @@ export default function AdminPanel() {
                     </td>
                     <td style={{ padding: '1rem 1.25rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
                       {new Date(userItem.createdAt).toLocaleDateString()}
+                    </td>
+                    <td style={{ padding: '1rem 1.25rem' }}>
+                      {userItem.role !== 'admin' && (
+                        <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#ef4444' }} onClick={() => handleDeleteUser(userItem._id)}>
+                          <Trash2 size={14} /> Delete
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -526,10 +563,10 @@ export default function AdminPanel() {
                     <td style={{ padding: '1rem 1.25rem', color: 'var(--text-muted)' }}>{inst.email}</td>
                     <td style={{ padding: '1rem 1.25rem' }}>
                       <span style={{ padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600,
-                        background: inst.isBlocked ? 'rgba(239,68,68,0.1)' : inst.isApproved ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
-                        color: inst.isBlocked ? '#ef4444' : inst.isApproved ? '#22c55e' : '#f59e0b'
+                        background: inst.isGhost ? 'rgba(148,163,184,0.1)' : inst.isBlocked ? 'rgba(239,68,68,0.1)' : inst.isApproved ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
+                        color: inst.isGhost ? '#94a3b8' : inst.isBlocked ? '#ef4444' : inst.isApproved ? '#22c55e' : '#f59e0b'
                       }}>
-                        {inst.isBlocked ? 'Blocked' : inst.isApproved ? 'Active' : 'Pending'}
+                        {inst.isGhost ? 'Unregistered' : inst.isBlocked ? 'Blocked' : inst.isApproved ? 'Active' : 'Pending'}
                       </span>
                     </td>
                     <td style={{ padding: '1rem 1.25rem' }}>
@@ -553,18 +590,25 @@ export default function AdminPanel() {
                     </td>
                     <td style={{ padding: '1rem 1.25rem' }}>
                       <div style={{ display: 'flex', gap: '0.4rem' }}>
-                        {!inst.isApproved && !inst.isBlocked && (
+                        {!inst.isGhost && !inst.isApproved && !inst.isBlocked && (
                           <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#22c55e' }} onClick={() => handleApproveInstructor(inst._id)} title="Approve">
                             <ShieldCheck size={14} /> Approve
                           </button>
                         )}
-                        {!inst.isBlocked ? (
+                        {!inst.isGhost && !inst.isBlocked ? (
                           <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#ef4444' }} onClick={() => handleBlockInstructor(inst._id)} title="Block">
                             <ShieldOff size={14} /> Block
                           </button>
-                        ) : (
+                        ) : !inst.isGhost && (
                           <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#22c55e' }} onClick={() => handleUnblockInstructor(inst._id)} title="Unblock">
                             <ShieldCheck size={14} /> Unblock
+                          </button>
+                        )}
+                        {inst.isGhost ? (
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>No actions available</span>
+                        ) : (
+                          <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#ef4444' }} onClick={() => handleDeleteInstructor(inst._id)} title="Delete">
+                            <Trash2 size={14} /> Delete
                           </button>
                         )}
                       </div>
@@ -602,12 +646,12 @@ export default function AdminPanel() {
                 </tr>
               </thead>
               <tbody>
-                {instructorsList.filter(i => !i.isApproved && !i.isBlocked).map(inst => (
+                {instructorsList.filter(i => !i.isGhost && !i.isApproved && !i.isBlocked).map(inst => (
                   <tr key={inst._id} style={{ borderBottom: '1px solid var(--border)' }}>
                     <td style={{ padding: '0.75rem 1rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(168,85,247,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a855f7', fontWeight: 'bold', fontSize: '0.85rem' }}>
-                          {inst.name?.charAt(0)}
+                          {inst.name?.charAt(0) || '?'}
                         </div>
                         <strong>{inst.name}</strong>
                       </div>
@@ -626,7 +670,7 @@ export default function AdminPanel() {
                     </td>
                   </tr>
                 ))}
-                {instructorsList.filter(i => !i.isApproved && !i.isBlocked).length === 0 && (
+                {instructorsList.filter(i => !i.isGhost && !i.isApproved && !i.isBlocked).length === 0 && (
                   <tr><td colSpan="4" style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>No pending instructor approvals</td></tr>
                 )}
               </tbody>
@@ -775,12 +819,18 @@ export default function AdminPanel() {
                 onChange={(e) => setCurrentCourse({ ...currentCourse, description: e.target.value })}
               />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <input
-                  type="text" placeholder="Instructor" required
+                <select
+                  required
                   value={currentCourse.instructor}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(0,0,0,0.05)', border: '1px solid var(--border)', color: 'var(--text-main)' }}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'var(--bg-card)', border: '1px solid var(--border)', color: currentCourse.instructor ? 'var(--text-main)' : 'var(--text-muted)', cursor: 'pointer' }}
                   onChange={(e) => setCurrentCourse({ ...currentCourse, instructor: e.target.value })}
-                />
+                >
+                  <option value="" disabled>Select Instructor</option>
+                  {instructorsList.map(inst => (
+                    <option key={inst._id} value={inst._id}>{inst.name}</option>
+                  ))}
+                  {instructorsList.length === 0 && <option value="" disabled>No instructors found</option>}
+                </select>
                 <select
                   required
                   value={currentCourse.category}

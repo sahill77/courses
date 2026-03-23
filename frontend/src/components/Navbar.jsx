@@ -32,8 +32,8 @@ export default function Navbar() {
   return (
     <nav className="glass" style={{ position: 'sticky', top: 0, zIndex: 100, marginBottom: '2rem' }}>
       <div className="container" style={{ minHeight: '70px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 1rem' }}>
-        <Link to="/" onClick={() => setIsMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, fontSize: 'clamp(1rem, 4vw, 1.25rem)', color: 'var(--primary)', padding: '0.5rem 0', maxWidth: '70%' }}>
-          <BookOpen style={{ flexShrink: 0 }} /> <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>SparksStream</span>
+        <Link to="/" onClick={() => setIsMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800, fontSize: 'clamp(0.9rem, 3.5vw, 1.25rem)', color: 'var(--primary)', padding: '0.5rem 0', maxWidth: '60%', minWidth: '120px' }}>
+          <BookOpen style={{ flexShrink: 0, width: 'clamp(18px, 4vw, 24px)' }} /> <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>SparksStream</span>
         </Link>
 
         {/* Mobile Menu Toggle */}

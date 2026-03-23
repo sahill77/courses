@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { User, BookOpen } from 'lucide-react';
+import { User, BookOpen, GraduationCap } from 'lucide-react';
 
 export default function CourseCard({ course }) {
   return (
@@ -23,9 +23,9 @@ export default function CourseCard({ course }) {
           {course.category}
         </div>
         <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', lineHeight: 1.3 }}>{course.title}</h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><User size={14} /> {course.instructor}</span>
-        </div>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <GraduationCap size={16} color="var(--primary)" /> {course.instructor?.name || course.instructor}
+        </p>
         <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--border)', paddingTop: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
           <span style={{ fontWeight: 700, fontSize: '1.25rem', whiteSpace: 'nowrap' }}>₹{Math.floor(course.price)}</span>
           <Link to={`/course/${course._id}`} className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', flexShrink: 0 }}>

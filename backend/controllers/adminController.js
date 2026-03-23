@@ -2,11 +2,20 @@ import Course from "../models/Course.js";
 import User from "../models/User.js";
 import Enrollment from "../models/Enrollment.js";
 import Category from "../models/Category.js";
+import Instructor from "../models/Instructor.js";
 
 export const createCourse = async (req, res) => {
   try {
     const course = new Course(req.body);
     await course.save();
+
+    // Sync with Instructor model
+    await Instructor.findOneAndUpdate(
+      { user: course.instructor },
+      { $addToSet: { courses: course._id } },
+      { upsert: true }
+    );
+
     res.status(201).send(course);
   } catch (error) {
     res.status(400).send({ error: error.message });
@@ -15,10 +24,27 @@ export const createCourse = async (req, res) => {
 
 export const updateCourse = async (req, res) => {
   try {
+    const oldCourse = await Course.findById(req.params.id);
     const course = await Course.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
     if (!course) return res.status(404).send({ error: "Course not found" });
+
+    // Sync with Instructor model if instructor changed
+    if (oldCourse && oldCourse.instructor.toString() !== course.instructor.toString()) {
+      // Remove from old instructor
+      await Instructor.updateOne(
+        { user: oldCourse.instructor },
+        { $pull: { courses: course._id } }
+      );
+      // Add to new instructor
+      await Instructor.findOneAndUpdate(
+        { user: course.instructor },
+        { $addToSet: { courses: course._id } },
+        { upsert: true }
+      );
+    }
+
     res.send(course);
   } catch (error) {
     res.status(400).send({ error: error.message });
@@ -40,7 +66,13 @@ export const getStats = async (req, res) => {
     const users = await User.countDocuments();
     const courses = await Course.countDocuments();
     const enrollments = await Enrollment.countDocuments();
-    const instructors = await User.countDocuments({ role: 'instructor' });
+    const instructorUsers = await User.find({ role: 'instructor' }, 'name');
+    const coursesForInstructors = await Course.find({}, 'instructor');
+    const uniqueInstructorNames = new Set([
+      ...instructorUsers.map(u => u.name),
+      ...coursesForInstructors.map(c => c.instructor).filter(Boolean)
+    ]);
+    const instructorsCount = uniqueInstructorNames.size;
 
     // Category-wise enrollment (Includes all courses for complete category tracking)
     const categoryStats = await Course.aggregate([
@@ -59,7 +91,7 @@ export const getStats = async (req, res) => {
     })).sort((a, b) => b.count - a.count);
 
     res.send({ 
-      users, courses, enrollments, instructors,
+      users, courses, enrollments, instructors: instructorsCount,
       categoryStats: categoryStats.map(s => ({ category: s._id, count: s.studentCount })),
       courseStats: formattedCourseStats
     });
@@ -120,22 +152,28 @@ export const getUsers = async (req, res) => {
 export const getInstructors = async (req, res) => {
   try {
     const instructors = await User.find({ role: 'instructor' }, '-password');
-    const allCourses = await Course.find();
+    const allCourses = await Course.find().populate('instructor', 'name');
     const allEnrollments = await Enrollment.find();
+    const instructorProfiles = await Instructor.find();
 
     const enriched = instructors.map(inst => {
-      const instObj = inst.toObject();
-      const instructorCourses = allCourses.filter(c => c.instructor === inst.name);
+      const profile = instructorProfiles.find(p => p.user.toString() === inst._id.toString());
+      const instructorCourses = allCourses.filter(c => c.instructor?._id?.toString() === inst._id.toString());
       const courseIds = instructorCourses.map(c => c._id.toString());
       const categories = [...new Set(instructorCourses.map(c => c.category).filter(Boolean))];
-      const totalStudents = allEnrollments.filter(e => courseIds.includes(e.course.toString())).length;
+      
+      // Use the profile if it exists, otherwise calculate
+      const totalStudents = profile ? profile.students.length : allEnrollments.filter(e => courseIds.includes(e.course.toString())).length;
+      const totalCourses = profile ? profile.courses.length : instructorCourses.length;
 
       return {
-        ...instObj,
+        ...inst.toObject(),
         courses: instructorCourses.map(c => ({ _id: c._id, title: c.title, category: c.category })),
         categories,
-        totalCourses: instructorCourses.length,
+        totalCourses,
         totalStudents,
+        enrollments: profile ? profile.enrollments : [],
+        studentIds: profile ? profile.students : []
       };
     });
 
@@ -207,14 +245,57 @@ export const approveCourse = async (req, res) => {
   }
 };
 
-// Reject a course
+// Reject a course (deletes from DB)
 export const rejectCourse = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id);
+    const course = await Course.findByIdAndDelete(req.params.id);
     if (!course) return res.status(404).send({ error: 'Course not found' });
-    course.status = 'rejected';
-    await course.save();
-    res.send({ message: 'Course rejected' });
+    await Enrollment.deleteMany({ course: req.params.id });
+    await Instructor.updateMany({}, { $pull: { courses: req.params.id } });
+    await User.updateMany({}, { $pull: { enrolledCourses: req.params.id } });
+    res.send({ message: 'Course rejected and deleted' });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+// Delete a category
+export const deleteCategory = async (req, res) => {
+  try {
+    const category = await Category.findByIdAndDelete(req.params.id);
+    if (!category) return res.status(404).send({ error: 'Category not found' });
+    res.send({ message: 'Category deleted' });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+// Delete a user/student
+export const deleteUser = async (req, res) => {
+  try {
+    const u = await User.findById(req.params.id);
+    if (!u) return res.status(404).send({ error: 'User not found' });
+    await Enrollment.deleteMany({ user: req.params.id });
+    await Course.updateMany({}, { $pull: { students: req.params.id } });
+    await User.findByIdAndDelete(req.params.id);
+    res.send({ message: 'User deleted' });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+// Delete an instructor
+export const deleteInstructor = async (req, res) => {
+  try {
+    const u = await User.findById(req.params.id);
+    if (!u || u.role !== 'instructor') return res.status(404).send({ error: 'Instructor not found' });
+    const courses = await Course.find({ instructor: req.params.id });
+    const courseIds = courses.map(c => c._id);
+    await Enrollment.deleteMany({ course: { $in: courseIds } });
+    await Course.deleteMany({ instructor: req.params.id });
+    await Instructor.deleteMany({ user: req.params.id });
+    await User.findByIdAndDelete(req.params.id);
+    res.send({ message: 'Instructor and their courses deleted' });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }

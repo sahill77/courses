@@ -3,7 +3,7 @@ import Enrollment from "../models/Enrollment.js";
 
 export const getAllCourses = async (req, res) => {
   try {
-    const courses = await Course.find({ $or: [{ status: 'approved' }, { status: { $exists: false } }] });
+    const courses = await Course.find({ status: 'approved' }).populate("instructor", "name");
     res.send(courses);
   } catch (error) {
     res.status(500).send({ error: error.message });
@@ -12,7 +12,12 @@ export const getAllCourses = async (req, res) => {
 
 export const getStudentDashboard = async (req, res) => {
   try {
-    const enrollments = await Enrollment.find({ user: req.user._id }).populate("course").sort({ updatedAt: -1 });
+    const enrollments = await Enrollment.find({ user: req.user._id })
+      .populate({
+        path: 'course',
+        populate: { path: 'instructor', select: 'name' }
+      })
+      .sort({ updatedAt: -1 });
     res.send(enrollments);
   } catch (error) {
     res.status(500).send({ error: error.message });
@@ -21,7 +26,7 @@ export const getStudentDashboard = async (req, res) => {
 
 export const getCourseDetail = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id);
+    const course = await Course.findById(req.params.id).populate('instructor', 'name');
     if (!course) return res.status(404).send({ error: "Course not found" });
     res.send(course);
   } catch (error) {
@@ -92,6 +97,18 @@ export const enrollCourse = async (req, res) => {
       course: course._id,
     });
     await enrollment.save();
+
+    // Sync with Instructor model
+    await Instructor.findOneAndUpdate(
+      { user: course.instructor },
+      { 
+        $addToSet: { 
+          enrollments: enrollment._id,
+          students: req.user._id
+        } 
+      },
+      { upsert: true }
+    );
 
     req.user.enrolledCourses.push(course._id);
     await req.user.save();

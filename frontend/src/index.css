@@ -185,7 +185,20 @@ button {
 }
 
 @media (max-width: 480px) {
+  .container {
+    padding: 0 1rem;
+  }
   .text-h1 { font-size: 1.75rem !important; }
+  .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Ensure images don't overflow in grids */
+img {
+  max-width: 100%;
+  height: auto;
 }
 
 /* Visibility Utilities */
@@ -222,6 +235,8 @@ button {
 
 .admin-sidebar {
   width: 280px;
+  min-width: 280px;
+  flex-shrink: 0;
   background: var(--bg-card);
   border-right: 1px solid var(--border);
   display: flex;
@@ -229,7 +244,9 @@ button {
   gap: 0.5rem;
   height: 100%;
   overflow-y: auto;
-  transition: var(--transition);
+  overflow-x: hidden;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: width, min-width;
 }
 
 .admin-main {
@@ -275,6 +292,7 @@ button {
   
   .admin-sidebar.collapsed {
     width: 88px;
+    min-width: 88px;
     align-items: unset;
     padding: 1.25rem 1rem !important;
   }

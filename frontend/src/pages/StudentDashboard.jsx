@@ -102,7 +102,7 @@ export default function StudentDashboard() {
                                         </div>
                                         <div style={{ overflow: 'hidden' }}>
                                             <h3 style={{ fontSize: '1rem', marginBottom: '0.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--header-text)' }}>{enr.course?.title}</h3>
-                                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{enr.course?.instructor}</div>
+                                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{enr.course?.instructor?.name || enr.course?.instructor || '—'}</div>
                                         </div>
                                     </div>
 

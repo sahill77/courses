@@ -27,9 +27,9 @@ export const getAllCategories = async (req, res) => {
     if (newCategoriesAdded) {
       existingCategories = await Category.find(); // Re-fetch to ensure proper Mongoose documents & sorting
     }
-    const sortedCategories = existingCategories.sort((a, b) =>
-      a.name.localeCompare(b.name)
-    );
+    const sortedCategories = existingCategories
+      .filter(c => c.status === 'approved')
+      .sort((a, b) => a.name.localeCompare(b.name));
     res.send(sortedCategories);
   } catch (error) {
     res.status(500).send({ error: error.message });
@@ -51,6 +51,7 @@ export const createCategory = async (req, res) => {
       icon: icon || name.charAt(0).toUpperCase(),
       color,
       showOnHome,
+      status: 'pending'
     });
     await category.save();
     res.status(201).send(category);

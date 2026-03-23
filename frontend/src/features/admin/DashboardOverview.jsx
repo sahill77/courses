@@ -4,8 +4,8 @@ import { Users, BookOpen, CheckCircle, Activity, GraduationCap } from 'lucide-re
 export default function DashboardOverview({ user, stats, usersList, categories }) {
   const [selectedCategory, setSelectedCategory] = React.useState('All');
 
-  const filteredCourseStats = selectedCategory === 'All' 
-    ? stats.courseStats 
+  const filteredCourseStats = selectedCategory === 'All'
+    ? stats.courseStats
     : stats.courseStats?.filter(c => c.category?.trim().toLowerCase() === selectedCategory.trim().toLowerCase());
 
   const categoryNames = categories?.map(c => c.name) || [];
@@ -66,18 +66,18 @@ export default function DashboardOverview({ user, stats, usersList, categories }
               <GraduationCap size={22} color="var(--primary)" /> Category Enrollments
             </h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Search/Filter by Category:</span>
-              <select 
-                value={selectedCategory} 
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Filter by Category:</span>
+              <select
+                value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                style={{ 
-                  background: 'rgba(30,41,59,0.9)', 
-                  color: '#fff', 
-                  border: '1px solid var(--border)', 
-                  padding: '0.4rem 0.75rem', 
-                  borderRadius: '8px', 
-                  fontSize: '0.9rem', 
-                  cursor: 'pointer', 
+                style={{
+                  background: 'rgba(30,41,59,0.9)',
+                  color: '#fff',
+                  border: '1px solid var(--border)',
+                  padding: '0.4rem 0.75rem',
+                  borderRadius: '8px',
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
                   outline: 'none',
                   minWidth: '180px'
                 }}
