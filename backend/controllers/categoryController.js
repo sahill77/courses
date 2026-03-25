@@ -3,30 +3,8 @@ import Course from "../models/Course.js";
 
 export const getAllCategories = async (req, res) => {
   try {
-    // Auto-sync missing categories from Courses
-    const courseCategories = await Course.distinct("category");
-    let existingCategories = await Category.find();
-    const existingNames = existingCategories.map((c) => c.name);
-
-    let newCategoriesAdded = false;
-    for (const cName of courseCategories) {
-      if (cName && !existingNames.includes(cName)) {
-        const newCat = new Category({
-          name: cName,
-          icon: cName.charAt(0).toUpperCase(),
-          color: "#6366f1",
-          description: "Auto-generated category",
-          showOnHome: false,
-        });
-        await newCat.save();
-        existingCategories.push(newCat);
-        newCategoriesAdded = true;
-      }
-    }
-
-    if (newCategoriesAdded) {
-      existingCategories = await Category.find(); // Re-fetch to ensure proper Mongoose documents & sorting
-    }
+    const existingCategories = await Category.find();
+    
     const sortedCategories = existingCategories
       .filter(c => c.status === 'approved')
       .sort((a, b) => a.name.localeCompare(b.name));
@@ -51,7 +29,8 @@ export const createCategory = async (req, res) => {
       icon: icon || name.charAt(0).toUpperCase(),
       color,
       showOnHome,
-      status: 'pending'
+      status: req.user && req.user.role === 'admin' ? 'approved' : 'pending',
+      createdBy: req.user ? req.user._id : null
     });
     await category.save();
     res.status(201).send(category);

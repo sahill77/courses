@@ -49,7 +49,7 @@ export default function Footer() {
                         <ul style={{ listStyle: 'none', display: 'grid', gap: '0.75rem', fontSize: '0.95rem', color: 'var(--text-muted)' }}>
                             <li><Link to="/privacy" style={{ transition: 'var(--transition)' }} onMouseOver={(e) => e.target.style.color = 'var(--primary)'} onMouseOut={(e) => e.target.style.color = 'inherit'}>Privacy Policy</Link></li>
                             <li><Link to="/terms" style={{ transition: 'var(--transition)' }} onMouseOver={(e) => e.target.style.color = 'var(--primary)'} onMouseOut={(e) => e.target.style.color = 'inherit'}>Terms of Service</Link></li>
-                            <li><a href="#" style={{ transition: 'var(--transition)' }} onMouseOver={(e) => e.target.style.color = 'var(--primary)'} onMouseOut={(e) => e.target.style.color = 'inherit'}>Help Center</a></li>
+                            <li><Link to="/help" style={{ transition: 'var(--transition)' }} onMouseOver={(e) => e.target.style.color = 'var(--primary)'} onMouseOut={(e) => e.target.style.color = 'inherit'}>Help Center</Link></li>
                             <li><Link to="/contact" style={{ transition: 'var(--transition)' }} onMouseOver={(e) => e.target.style.color = 'var(--primary)'} onMouseOut={(e) => e.target.style.color = 'inherit'}>Contact Us</Link></li>
                         </ul>
                     </div>

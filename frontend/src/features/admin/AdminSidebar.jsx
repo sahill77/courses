@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Menu, X, BarChart2, PlusCircle, Users, Settings, LogOut, GraduationCap, AlertCircle } from 'lucide-react';
+import { BookOpen, Menu, X, BarChart2, PlusCircle, Users, Settings, LogOut, GraduationCap, AlertCircle, HelpCircle } from 'lucide-react';
 
 export default function AdminSidebar({ 
   isSidebarOpen, 
@@ -84,6 +84,13 @@ export default function AdminSidebar({
             style={{ justifyContent: 'flex-start', padding: '1rem', fontSize: '1rem', gap: '1rem' }}
           >
             <AlertCircle size={20} style={{ flexShrink: 0 }} /> <span className="nav-text">Approvals</span>
+          </button>
+          <button 
+            className={`btn ${activeTab === 'help' ? 'btn-primary' : 'btn-ghost'}`} 
+            onClick={() => { setSearchParams({ tab: 'help' }); window.innerWidth <= 768 && setIsSidebarOpen(false); }}
+            style={{ justifyContent: 'flex-start', padding: '1rem', fontSize: '1rem', gap: '1rem' }}
+          >
+            <HelpCircle size={20} style={{ flexShrink: 0 }} /> <span className="nav-text">Help Tickets</span>
           </button>
           <button 
             className={`btn ${activeTab === 'settings' ? 'btn-primary' : 'btn-ghost'}`} 

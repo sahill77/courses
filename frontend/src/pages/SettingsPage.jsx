@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ChevronLeft, Settings, User, Mail, Lock, Save, CheckCircle } from 'lucide-react';
+import { ChevronLeft, Settings, User, Mail, Lock, Save, CheckCircle, HelpCircle, Eye, X } from 'lucide-react';
 import axios from '../services/api';
 
 const Section = ({ title, field, children, onSave, messages, saving }) => (
@@ -32,10 +32,25 @@ export default function SettingsPage() {
     const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
     const [saving, setSaving] = useState(null); // 'name' | 'email' | 'password'
     const [messages, setMessages] = useState({});
+    const [myTickets, setMyTickets] = useState([]);
+    const [selectedTicket, setSelectedTicket] = useState(null);
+    const [loadingTickets, setLoadingTickets] = useState(true);
 
     useEffect(() => {
         if (user) setForm(f => ({ ...f, name: user.name, email: user.email }));
+        fetchMyTickets();
     }, [user]);
+
+    const fetchMyTickets = async () => {
+        try {
+            const { data } = await axios.get('/help/my-tickets');
+            setMyTickets(data);
+        } catch (err) {
+            console.error('Failed to fetch tickets:', err);
+        } finally {
+            setLoadingTickets(false);
+        }
+    };
 
     const setMsg = (field, type, text) => {
         setMessages(m => ({ ...m, [field]: { type, text } }));
@@ -151,7 +166,218 @@ export default function SettingsPage() {
                         </div>
                     </div>
                 </Section>
+
+                {/* My Help Tickets */}
+                <div className="glass" style={{ padding: '1.5rem', borderRadius: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <HelpCircle size={18} color="var(--primary)" /> My Help Tickets
+                        </h3>
+                        <Link to="/help" className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
+                            Submit New Request
+                        </Link>
+                    </div>
+
+                    {loadingTickets ? (
+                        <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>Loading tickets...</div>
+                    ) : myTickets.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                            <HelpCircle size={48} style={{ margin: '0 auto 1rem', opacity: 0.3 }} />
+                            <p>No help requests yet.</p>
+                        </div>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                            {myTickets.map(ticket => {
+                                const statusColors = {
+                                    pending: { bg: 'rgba(245,158,11,0.1)', color: '#f59e0b' },
+                                    'in-progress': { bg: 'rgba(59,130,246,0.1)', color: '#3b82f6' },
+                                    resolved: { bg: 'rgba(34,197,94,0.1)', color: '#22c55e' },
+                                    closed: { bg: 'rgba(107,114,128,0.1)', color: '#6b7280' }
+                                };
+                                const statusStyle = statusColors[ticket.status] || statusColors.pending;
+
+                                return (
+                                    <div
+                                        key={ticket._id}
+                                        style={{
+                                            padding: '1.25rem',
+                                            background: 'rgba(0,0,0,0.2)',
+                                            borderRadius: '8px',
+                                            border: '1px solid var(--border)',
+                                            cursor: 'pointer',
+                                            transition: 'var(--transition)'
+                                        }}
+                                        onClick={() => setSelectedTicket(ticket)}
+                                        onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--primary)'}
+                                        onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
+                                    >
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '0.75rem' }}>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                                                    <span style={{ 
+                                                        fontSize: '0.75rem', 
+                                                        fontWeight: 700, 
+                                                        color: 'var(--primary)',
+                                                        background: 'rgba(99,102,241,0.1)',
+                                                        padding: '0.25rem 0.6rem',
+                                                        borderRadius: '4px'
+                                                    }}>
+                                                        {ticket.ticketNumber}
+                                                    </span>
+                                                    <span
+                                                        style={{
+                                                            background: statusStyle.bg,
+                                                            color: statusStyle.color,
+                                                            padding: '0.25rem 0.6rem',
+                                                            borderRadius: '4px',
+                                                            fontSize: '0.7rem',
+                                                            fontWeight: 600,
+                                                            textTransform: 'capitalize'
+                                                        }}
+                                                    >
+                                                        {ticket.status.replace('-', ' ')}
+                                                    </span>
+                                                </div>
+                                                <div style={{ fontWeight: 600, marginBottom: '0.25rem', fontSize: '0.95rem' }}>{ticket.subject}</div>
+                                                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                                    Submitted: {new Date(ticket.createdAt).toLocaleDateString()}
+                                                </div>
+                                            </div>
+                                            <Eye size={18} color="var(--primary)" style={{ flexShrink: 0 }} />
+                                        </div>
+                                        {ticket.adminNotes && (
+                                            <div style={{ 
+                                                fontSize: '0.75rem', 
+                                                color: '#22c55e',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0.5rem',
+                                                marginTop: '0.5rem',
+                                                paddingTop: '0.75rem',
+                                                borderTop: '1px solid var(--border)'
+                                            }}>
+                                                <CheckCircle size={14} /> Admin has responded
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
             </div>
+
+            {/* Ticket Detail Modal */}
+            {selectedTicket && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.8)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1000,
+                        padding: '1rem'
+                    }}
+                    onClick={() => setSelectedTicket(null)}
+                >
+                    <div
+                        className="glass"
+                        style={{
+                            maxWidth: '600px',
+                            width: '100%',
+                            maxHeight: '80vh',
+                            overflowY: 'auto',
+                            padding: '2rem',
+                            borderRadius: '16px'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                            <div>
+                                <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Ticket Details</h3>
+                                <div style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 600, marginTop: '0.25rem' }}>
+                                    {selectedTicket.ticketNumber}
+                                </div>
+                            </div>
+                            <button
+                                className="btn btn-ghost"
+                                style={{ padding: '0.5rem' }}
+                                onClick={() => setSelectedTicket(null)}
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div style={{ display: 'grid', gap: '1.5rem' }}>
+                            <div>
+                                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Subject</div>
+                                <div style={{ fontWeight: 600, fontSize: '1.1rem' }}>{selectedTicket.subject}</div>
+                            </div>
+
+                            <div>
+                                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Status</div>
+                                <span
+                                    style={{
+                                        background: selectedTicket.status === 'resolved' ? 'rgba(34,197,94,0.1)' : selectedTicket.status === 'in-progress' ? 'rgba(59,130,246,0.1)' : 'rgba(245,158,11,0.1)',
+                                        color: selectedTicket.status === 'resolved' ? '#22c55e' : selectedTicket.status === 'in-progress' ? '#3b82f6' : '#f59e0b',
+                                        padding: '0.4rem 1rem',
+                                        borderRadius: '8px',
+                                        fontSize: '0.85rem',
+                                        fontWeight: 600,
+                                        textTransform: 'capitalize',
+                                        display: 'inline-block'
+                                    }}
+                                >
+                                    {selectedTicket.status.replace('-', ' ')}
+                                </span>
+                            </div>
+
+                            <div>
+                                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Your Message</div>
+                                <div
+                                    style={{
+                                        padding: '1rem',
+                                        background: 'rgba(0,0,0,0.2)',
+                                        borderRadius: '8px',
+                                        lineHeight: 1.6,
+                                        whiteSpace: 'pre-wrap'
+                                    }}
+                                >
+                                    {selectedTicket.message}
+                                </div>
+                            </div>
+
+                            {selectedTicket.adminNotes && (
+                                <div>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Admin Response</div>
+                                    <div
+                                        style={{
+                                            padding: '1rem',
+                                            background: 'rgba(99,102,241,0.1)',
+                                            border: '1px solid rgba(99,102,241,0.3)',
+                                            borderRadius: '8px',
+                                            lineHeight: 1.6,
+                                            whiteSpace: 'pre-wrap'
+                                        }}
+                                    >
+                                        {selectedTicket.adminNotes}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
+                                <div>Submitted: {new Date(selectedTicket.createdAt).toLocaleString()}</div>
+                                <div>Last Updated: {new Date(selectedTicket.updatedAt).toLocaleString()}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

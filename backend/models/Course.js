@@ -9,6 +9,7 @@ const courseSchema = new mongoose.Schema(
     category: { type: String, required: true },
     price: { type: Number, default: 0 },
     status: { type: String, enum: ['approved', 'pending', 'rejected'], default: 'approved' },
+    showOnHome: { type: Boolean, default: false },
     content: [
       {
         title: { type: String },

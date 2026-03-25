@@ -30,6 +30,26 @@ export default function LearningMode() {
         fetchData();
     }, [id]);
 
+    // Handle YouTube iframe messages
+    useEffect(() => {
+        const handleMessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                // VT.PlayerState.ENDED is 0
+                if (data.event === 'infoDelivery' && data.info && data.info.playerState === 0) {
+                    const activeMod = course?.content?.[activeIndex];
+                    if (activeMod && !enrollment?.completedModules?.includes(activeMod._id)) {
+                        toggleComplete(activeMod._id);
+                    }
+                }
+            } catch (e) {
+                // Ignore parsing errors for other messages
+            }
+        };
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, [course, activeIndex, enrollment]);
+
     const saveProgress = async (moduleId, completed, newIndex) => {
         try {
             const { data } = await axios.post(`/courses/${id}/progress`, {
@@ -88,14 +108,23 @@ export default function LearningMode() {
         );
         if (mod.videoUrl.includes('youtube.com') || mod.videoUrl.includes('youtu.be')) {
             const embedUrl = mod.videoUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/');
+            const jsApiUrl = embedUrl.includes('?') ? `${embedUrl}&enablejsapi=1` : `${embedUrl}?enablejsapi=1`;
             return (
                 <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '12px', background: '#000' }}>
-                    <iframe src={embedUrl} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }} allowFullScreen title={mod.title} />
+                    <iframe src={jsApiUrl} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }} allowFullScreen title={mod.title} />
                 </div>
             );
         }
         return (
-            <video controls autoPlay style={{ width: '100%', borderRadius: '12px', background: '#000' }}>
+            <video 
+                controls autoPlay 
+                style={{ width: '100%', borderRadius: '12px', background: '#000' }}
+                onEnded={() => {
+                    if (!completedModules.includes(mod._id)) {
+                        toggleComplete(mod._id);
+                    }
+                }}
+            >
                 <source src={mod.videoUrl} type="video/mp4" />
             </video>
         );
@@ -138,9 +167,9 @@ export default function LearningMode() {
                     <h3 style={{ fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '0.5rem' }}>{course.title}</h3>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
-                            <div style={{ width: `${progress}%`, height: '100%', background: 'linear-gradient(to right, var(--primary), #22c55e)', transition: 'width 0.4s' }} />
+                            <div style={{ width: `${progress}%`, height: '100%', background: 'var(--primary)', transition: 'width 0.4s' }} />
                         </div>
-                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: progress === 100 ? '#22c55e' : 'var(--primary)', whiteSpace: 'nowrap' }}>{progress}%</span>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary)', whiteSpace: 'nowrap' }}>{progress}%</span>
                     </div>
                 </div>
 

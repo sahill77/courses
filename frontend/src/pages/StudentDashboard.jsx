@@ -112,7 +112,7 @@ export default function StudentDashboard() {
                                             <span style={{ fontWeight: 600 }}>{enr.progress}%</span>
                                         </div>
                                         <div style={{ height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
-                                            <div style={{ width: `${enr.progress}%`, height: '100%', background: 'linear-gradient(to right, var(--primary), #818cf8)' }}></div>
+                                            <div style={{ width: `${enr.progress}%`, height: '100%', background: 'var(--primary)' }}></div>
                                         </div>
                                     </div>
 

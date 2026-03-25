@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import AdminSidebar from '../features/admin/AdminSidebar';
 import DashboardOverview from '../features/admin/DashboardOverview';
+import HelpTicketsTab from '../features/admin/HelpTicketsTab';
 import Pagination from '../features/common/Pagination';
 import ManageCourseContentModal from '../features/admin/ManageCourseContentModal';
 
@@ -60,8 +61,10 @@ export default function AdminPanel() {
   const [usersList, setUsersList] = useState([]);
   const [instructorsList, setInstructorsList] = useState([]);
   const [pendingCourses, setPendingCourses] = useState([]);
+  const [pendingCategories, setPendingCategories] = useState([]);
   const [previewCourse, setPreviewCourse] = useState(null);
   const [stats, setStats] = useState({ users: 0, courses: 0, enrollments: 0, instructors: 0 });
+  const [helpTickets, setHelpTickets] = useState([]);
   const [uploading, setUploading] = useState(false);
 
   const ITEMS_PER_PAGE = 5;
@@ -77,8 +80,9 @@ export default function AdminPanel() {
   const totalCategoryPages = Math.ceil(categories.length / ITEMS_PER_PAGE);
   const paginatedCategories = categories.slice((categoryPage - 1) * ITEMS_PER_PAGE, categoryPage * ITEMS_PER_PAGE);
 
-  const totalUserPages = Math.ceil(usersList.length / ITEMS_PER_PAGE);
-  const paginatedUsers = usersList.slice((userPage - 1) * ITEMS_PER_PAGE, userPage * ITEMS_PER_PAGE);
+  const nonAdminUsers = usersList.filter(u => u.role !== 'admin');
+  const totalUserPages = Math.ceil(nonAdminUsers.length / ITEMS_PER_PAGE);
+  const paginatedUsers = nonAdminUsers.slice((userPage - 1) * ITEMS_PER_PAGE, userPage * ITEMS_PER_PAGE);
 
   const totalInstructorPages = Math.ceil(instructorsList.length / ITEMS_PER_PAGE);
   const paginatedInstructors = instructorsList.slice((instructorPage - 1) * ITEMS_PER_PAGE, instructorPage * ITEMS_PER_PAGE);
@@ -121,8 +125,17 @@ export default function AdminPanel() {
 
   const fetchCategories = async () => {
     try {
-      const { data } = await axios.get('/categories');
+      const { data } = await axios.get('/admin/categories');
       setCategories(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchPendingCategories = async () => {
+    try {
+      const { data } = await axios.get('/admin/pending-categories');
+      setPendingCategories(data);
     } catch (err) {
       console.error(err);
     }
@@ -159,13 +172,21 @@ export default function AdminPanel() {
 
   const fetchInstructors = async () => {
     try {
-      const { data } = await axios.get('/admin/instructors');
+      const { data} = await axios.get('/admin/instructors');
       setInstructorsList(data);
     } catch (err) {
       console.error(err);
     }
   };
 
+  const fetchHelpTickets = async () => {
+    try {
+      const { data } = await axios.get('/admin/help-tickets');
+      setHelpTickets(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
   const fetchPendingCourses = async () => {
     try {
       const { data } = await axios.get('/admin/pending-courses');
@@ -213,6 +234,29 @@ export default function AdminPanel() {
       fetchCourses();
     } catch (err) { alert('Failed to reject course'); }
   };
+  const handleToggleCourseHome = async (id) => {
+    try {
+      await axios.put(`/admin/courses/${id}/toggle-home`);
+      fetchCourses();
+    } catch (err) { alert('Failed to toggle homepage visibility'); }
+  };
+
+  // Admin actions for categories
+  const handleApproveCategory = async (id) => {
+    try {
+      await axios.put(`/admin/categories/${id}/approve`);
+      fetchPendingCategories();
+      fetchCategories();
+    } catch (err) { alert('Failed to approve category'); }
+  };
+  const handleRejectCategory = async (id) => {
+    if (!window.confirm('Are you sure you want to reject and delete this category?')) return;
+    try {
+      await axios.put(`/admin/categories/${id}/reject`);
+      fetchPendingCategories();
+      fetchCategories();
+    } catch (err) { alert('Failed to reject category'); }
+  };
 
   // Admin delete actions
   const handleDeleteCategory = async (id) => {
@@ -247,6 +291,8 @@ export default function AdminPanel() {
     fetchCategories();
     fetchInstructors();
     fetchPendingCourses();
+    fetchPendingCategories();
+    fetchHelpTickets();
   }, []);
 
   useEffect(() => {
@@ -394,6 +440,7 @@ export default function AdminPanel() {
                   <th style={{ padding: '1.25rem' }}>Category</th>
                   <th style={{ padding: '1.25rem' }}>Instructor</th>
                   <th style={{ padding: '1.25rem' }}>Price</th>
+                  <th style={{ padding: '1.25rem' }}>Home</th>
                   <th style={{ padding: '1.25rem' }}>Actions</th>
                 </tr>
               </thead>
@@ -404,6 +451,15 @@ export default function AdminPanel() {
                     <td style={{ padding: '1rem 1.25rem' }}><span style={{ background: 'rgba(99,102,241,0.1)', color: 'var(--primary)', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem' }}>{course.category}</span></td>
                     <td style={{ padding: '1rem 1.25rem' }}>{course.instructor?.name || course.instructor || '—'}</td>
                     <td style={{ padding: '1rem 1.25rem' }}>₹{Math.floor(course.price)}</td>
+                    <td style={{ padding: '1rem 1.25rem' }}>
+                      <button 
+                        onClick={() => handleToggleCourseHome(course._id)}
+                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: course.showOnHome ? 'var(--primary)' : 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', fontWeight: 600 }}
+                      >
+                        {course.showOnHome ? <CheckCircle size={16} /> : <div style={{ width: '16px', height: '16px', border: '2px solid var(--border)', borderRadius: '4px' }} />}
+                        {course.showOnHome ? 'Shown' : 'Hidden'}
+                      </button>
+                    </td>
                     <td style={{ padding: '1rem 1.25rem', display: 'flex', gap: '0.5rem' }}>
                       <button className="btn btn-ghost" style={{ padding: '0.4rem', color: 'var(--primary)' }} onClick={() => setContentModalCourse(course)} title="Manage Content & FAQs"><Layers size={16} /></button>
                       <button className="btn btn-ghost" style={{ padding: '0.4rem' }} onClick={() => { setCurrentCourse(course); setShowModal(true); }} title="Edit Course Details"><Edit size={16} /></button>
@@ -475,7 +531,7 @@ export default function AdminPanel() {
         <div className="animate-fade-in">
           <div style={{ marginBottom: '1.5rem' }}>
             <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Users size={20} color="var(--primary)" /> Student Enrollments
+              <Users size={20} color="var(--primary)" /> Users & Enrollments
             </h2>
           </div>
           <div className="glass" style={{ overflow: 'hidden' }}>
@@ -484,6 +540,7 @@ export default function AdminPanel() {
                 <tr style={{ background: 'rgba(255,255,255,0.05)', textAlign: 'left' }}>
                   <th style={{ padding: '1.25rem' }}>User Name</th>
                   <th style={{ padding: '1.25rem' }}>Email</th>
+                  <th style={{ padding: '1.25rem' }}>Role</th>
                   <th style={{ padding: '1.25rem' }}>Enrolled Courses</th>
                   <th style={{ padding: '1.25rem' }}>Joined On</th>
                   <th style={{ padding: '1.25rem' }}>Actions</th>
@@ -492,8 +549,21 @@ export default function AdminPanel() {
               <tbody>
                 {paginatedUsers.map(userItem => (
                   <tr key={userItem._id} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '1rem 1.25rem' }}>{userItem.name} {userItem.role === 'admin' && <span style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800 }}>(Admin)</span>}</td>
+                    <td style={{ padding: '1rem 1.25rem' }}>{userItem.name}</td>
                     <td style={{ padding: '1rem 1.25rem', color: 'var(--text-muted)' }}>{userItem.email}</td>
+                    <td style={{ padding: '1rem 1.25rem' }}>
+                      <span style={{ 
+                        background: userItem.role === 'instructor' ? 'rgba(245,158,11,0.1)' : 'rgba(99,102,241,0.1)', 
+                        color: userItem.role === 'instructor' ? '#f59e0b' : 'var(--primary)', 
+                        padding: '0.3rem 0.75rem', 
+                        borderRadius: '6px', 
+                        fontSize: '0.8rem', 
+                        fontWeight: 600,
+                        textTransform: 'capitalize'
+                      }}>
+                        {userItem.role}
+                      </span>
+                    </td>
                     <td style={{ padding: '1rem 1.25rem' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         {userItem.enrolledCourses?.length > 0 ? (
@@ -516,11 +586,9 @@ export default function AdminPanel() {
                       {new Date(userItem.createdAt).toLocaleDateString()}
                     </td>
                     <td style={{ padding: '1rem 1.25rem' }}>
-                      {userItem.role !== 'admin' && (
-                        <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#ef4444' }} onClick={() => handleDeleteUser(userItem._id)}>
-                          <Trash2 size={14} /> Delete
-                        </button>
-                      )}
+                      <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#ef4444' }} onClick={() => handleDeleteUser(userItem._id)}>
+                        <Trash2 size={14} /> Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -677,6 +745,53 @@ export default function AdminPanel() {
             </table>
           </div>
 
+          {/* Pending Categories */}
+          <h3 style={{ fontSize: '1rem', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)' }}>
+            <Layers size={16} /> Pending Category Approvals
+          </h3>
+          <div className="glass" style={{ overflow: 'hidden', marginBottom: '2rem' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: 'rgba(255,255,255,0.05)', textAlign: 'left' }}>
+                  <th style={{ padding: '1rem', width: '80px' }}>Icon</th>
+                  <th style={{ padding: '1rem', width: '25%' }}>Category Name</th>
+                  <th style={{ padding: '1rem', width: '100%' }}>Description</th>
+                  <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingCategories.map(cat => (
+                  <tr key={cat._id} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '0.75rem 1rem' }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(99,102,241,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: cat.color || 'var(--primary)', fontWeight: 'bold' }}>
+                        {cat.icon?.includes('http') || cat.icon?.startsWith('data:image') || cat.icon?.includes('/') ? (
+                          <img src={cat.icon} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          cat.icon || cat.name.charAt(0).toUpperCase()
+                        )}
+                      </div>
+                    </td>
+                    <td style={{ padding: '0.75rem 1rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}><strong>{cat.name}</strong></td>
+                    <td style={{ padding: '0.75rem 1rem', color: 'var(--text-muted)', fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cat.description || '-'}</td>
+                    <td style={{ padding: '0.75rem 1rem' }}>
+                      <div style={{ display: 'flex', gap: '0.4rem', whiteSpace: 'nowrap' }}>
+                        <button className="btn btn-primary" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }} onClick={() => handleApproveCategory(cat._id)}>
+                          <CheckCircle size={14} /> Approve
+                        </button>
+                        <button className="btn btn-ghost" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem', color: '#ef4444' }} onClick={() => handleRejectCategory(cat._id)}>
+                          <X size={14} /> Reject
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {pendingCategories.length === 0 && (
+                  <tr><td colSpan="4" style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>No pending category approvals</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
           {/* Pending Courses */}
           <h3 style={{ fontSize: '1rem', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)' }}>
             <BookOpen size={16} /> Pending Course Approvals
@@ -723,6 +838,8 @@ export default function AdminPanel() {
             </table>
           </div>
         </div>
+      ) : activeTab === 'help' ? (
+        <HelpTicketsTab helpTickets={helpTickets} fetchHelpTickets={fetchHelpTickets} />
       ) : activeTab === 'settings' ? (
         <div className="animate-fade-in" style={{ maxWidth: '600px' }}>
           <div style={{ marginBottom: '1.5rem' }}>

@@ -1,5 +1,0 @@
---- INSTRUCTOR USERS ---
-ID: 69be298373ccc1b904225d49, Name: instructor, Email: instructor@test.com, Approved: true, Blocked: false
-
---- ALL UNIQUE INSTRUCTOR NAMES IN COURSES ---
-Instructor in course: undefined

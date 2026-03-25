@@ -17,6 +17,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import SettingsPage from './pages/SettingsPage';
 import Contact from './pages/Contact';
+import HelpCenter from './pages/HelpCenter';
 import LearningMode from './pages/LearningMode';
 import Footer from './components/Footer';
 
@@ -85,6 +86,7 @@ function AppContent() {
             <Route path='/courses' element={<AdminRedirect><Courses /></AdminRedirect>} />
             <Route path='/course/:id' element={<AdminRedirect><CourseDetail /></AdminRedirect>} />
             <Route path='/contact' element={<AdminRedirect><Contact /></AdminRedirect>} />
+            <Route path='/help' element={<HelpCenter />} />
             <Route path='/privacy' element={<PrivacyPolicy />} />
             <Route path='/terms' element={<Terms />} />
 

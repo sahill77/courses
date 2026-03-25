@@ -19,7 +19,7 @@ export default function Home() {
                     axios.get('/courses'),
                     axios.get('/categories')
                 ]);
-                setCourses(coursesRes.data.slice(0, 4));
+                setCourses(coursesRes.data.filter(c => c.showOnHome).slice(0, 4));
                 setCategories(catsRes.data.filter(c => c.showOnHome));
             } catch (err) {
                 console.error(err);

@@ -143,14 +143,28 @@ export default function DashboardOverview({ user, stats, usersList, categories }
               <tr style={{ background: 'rgba(255,255,255,0.05)', textAlign: 'left' }}>
                 <th style={{ padding: '1.25rem' }}>User Name</th>
                 <th style={{ padding: '1.25rem' }}>Email</th>
+                <th style={{ padding: '1.25rem' }}>Role</th>
                 <th style={{ padding: '1.25rem' }}>Joined On</th>
               </tr>
             </thead>
             <tbody>
-              {usersList.slice().reverse().slice(0, 5).map(userItem => (
+              {usersList.filter(u => u.role !== 'admin').slice().reverse().slice(0, 5).map(userItem => (
                 <tr key={userItem._id} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td style={{ padding: '1rem 1.25rem' }}>{userItem.name} {userItem.role === 'admin' && <span style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800 }}>(Admin)</span>}</td>
+                  <td style={{ padding: '1rem 1.25rem' }}>{userItem.name}</td>
                   <td style={{ padding: '1rem 1.25rem', color: 'var(--text-muted)' }}>{userItem.email}</td>
+                  <td style={{ padding: '1rem 1.25rem' }}>
+                    <span style={{ 
+                      background: userItem.role === 'instructor' ? 'rgba(245,158,11,0.1)' : 'rgba(99,102,241,0.1)', 
+                      color: userItem.role === 'instructor' ? '#f59e0b' : 'var(--primary)', 
+                      padding: '0.3rem 0.75rem', 
+                      borderRadius: '6px', 
+                      fontSize: '0.8rem', 
+                      fontWeight: 600,
+                      textTransform: 'capitalize'
+                    }}>
+                      {userItem.role}
+                    </span>
+                  </td>
                   <td style={{ padding: '1rem 1.25rem' }}>{new Date(userItem.createdAt || Date.now()).toLocaleDateString()}</td>
                 </tr>
               ))}
