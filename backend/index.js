@@ -29,12 +29,10 @@ connectDB();
 app.use(express.json());
 app.use(
   cors({
-    origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: "https://courses-fr.vercel.app",
     credentials: true,
   })
 );
-
 app.get("/", (req, res) => {
   res.send("app is now running");
 });
