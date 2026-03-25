@@ -129,12 +129,27 @@ export default function CourseDetail() {
         // Razorpay Payment Flow
         setEnrolling(true);
         try {
+            // Check if Razorpay is loaded
+            if (typeof window.Razorpay === 'undefined') {
+                throw new Error('Razorpay SDK not loaded. Please refresh the page.');
+            }
+
             // 1. Create order on backend
             const { data: orderData } = await axios.post('/payments/order', { courseId: id });
 
+            if (!orderData || !orderData.id) {
+                throw new Error('Failed to create payment order');
+            }
+
+            // Get Razorpay key
+            const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+            if (!razorpayKey) {
+                throw new Error('Razorpay key not configured');
+            }
+
             // 2. Configure Razorpay options
             const options = {
-                key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_your_key_here', // Use env variable if available
+                key: razorpayKey,
                 amount: orderData.amount,
                 currency: orderData.currency,
                 name: "SparksStream",
@@ -145,13 +160,18 @@ export default function CourseDetail() {
                     try {
                         // 3. Verify payment on backend
                         const verifyResult = await axios.post('/payments/verify', {
-                            ...response,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
                             courseId: id
                         });
                         alert(verifyResult.data.message || 'Successfully enrolled!');
                         navigate('/dashboard');
                     } catch (verifyErr) {
+                        console.error('Payment verification error:', verifyErr);
                         alert(verifyErr.response?.data?.error || 'Payment verification failed');
+                    } finally {
+                        setEnrolling(false);
                     }
                 },
                 prefill: {
@@ -159,18 +179,28 @@ export default function CourseDetail() {
                     email: user.email,
                 },
                 theme: {
-                    color: "#6366f1", // Match primary color
+                    color: "#6366f1",
                 },
+                modal: {
+                    ondismiss: function() {
+                        setEnrolling(false);
+                        alert('Payment cancelled');
+                    }
+                }
             };
 
             const rzp = new window.Razorpay(options);
+            
             rzp.on('payment.failed', function (response) {
-                alert(response.error.description);
+                setEnrolling(false);
+                console.error('Payment failed:', response.error);
+                alert('Payment Failed: ' + (response.error.description || 'Please try again'));
             });
+            
             rzp.open();
         } catch (err) {
-            alert(err.response?.data?.error || 'Failed to initiate payment');
-        } finally {
+            console.error('Payment initiation error:', err);
+            alert(err.response?.data?.error || err.message || 'Failed to initiate payment');
             setEnrolling(false);
         }
     };
