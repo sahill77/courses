@@ -29,8 +29,7 @@ connectDB();
 app.use(express.json());
 app.use(
   cors({
-    origin: ["https://courses-fr.vercel.app","http://localhost:5173","https://courses-fr-git-main-sahilvanzara49-6248s-projects.vercel.app"],
-
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
