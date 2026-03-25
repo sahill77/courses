@@ -134,7 +134,7 @@ button {
 /* Flex Utilities */
 .flex-between { display: flex; justify-content: space-between; align-items: center; }
 .flex-center { display: flex; justify-content: center; align-items: center; }
-.flex-column { display: flex; flexDirection: column; }
+.flex-column { display: flex; flex-direction: column; }
 
 /* Responsive Breakpoints */
 @media (max-width: 1280px) {

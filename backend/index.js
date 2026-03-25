@@ -27,18 +27,33 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 app.use(express.json());
+
+// CORS Configuration
+const allowedOrigins = [
+  "https://courses-fr.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:5000"
+];
+
 app.use(
   cors({
-    origin: "https://courses-fr.vercel.app",
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
     credentials: true,
   })
 );
-app.get("/", (req, res) => {
-  res.send("app is now running");
-});
 
+// Serve uploaded files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/admin", adminRoutes);
@@ -48,7 +63,17 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/instructor", instructorRoutes);
 app.use("/api/payments", paymentRoutes);
 
+// Serve static files from the React app (Production Build)
+const frontendDistPath = path.join(__dirname, "../frontend/dist");
+app.use(express.static(frontendDistPath));
+
+// The "catchall" handler: for any request that doesn't match API routes,
+// send back React's index.html file.
+app.get("*", (req, res) => {
+  res.sendFile(path.join(frontendDistPath, "index.html"));
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Frontend served from: ${frontendDistPath}`);
 });
