@@ -7,7 +7,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: "https://courses-lilac-six.vercel.app",
+        target: "https://courses-lilac-six.vercel.app/api",
         changeOrigin: true,
       },
     },
