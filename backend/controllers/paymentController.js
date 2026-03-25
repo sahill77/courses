@@ -8,13 +8,21 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+const getRazorpayInstance = () => {
+  if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+    throw new Error("Razorpay keys are missing");
+  }
+
+  return new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+  });
+};
 
 export const createOrder = async (req, res) => {
   try {
+    const razorpay = getRazorpayInstance();
+
     const { courseId } = req.body;
     const course = await Course.findById(courseId);
 
@@ -43,6 +51,10 @@ export const createOrder = async (req, res) => {
 
 export const verifyPayment = async (req, res) => {
   try {
+    if (!process.env.RAZORPAY_KEY_SECRET) {
+      throw new Error("Razorpay secret missing");
+    }
+
     const {
       razorpay_order_id,
       razorpay_payment_id,
@@ -51,9 +63,10 @@ export const verifyPayment = async (req, res) => {
     } = req.body;
 
     const sign = razorpay_order_id + "|" + razorpay_payment_id;
+
     const expectedSign = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(sign.toString())
+      .update(sign)
       .digest("hex");
 
     if (razorpay_signature === expectedSign) {
