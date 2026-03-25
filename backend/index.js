@@ -53,7 +53,7 @@ app.use(
 // Serve uploaded files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// API Routes
+// API Routes - MUST come before static file serving
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/admin", adminRoutes);
@@ -63,17 +63,53 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/instructor", instructorRoutes);
 app.use("/api/payments", paymentRoutes);
 
-// Serve static files from the React app (Production Build)
-const frontendDistPath = path.join(__dirname, "../frontend/dist");
-app.use(express.static(frontendDistPath));
-
-// The "catchall" handler: for any request that doesn't match API routes,
-// send back React's index.html file.
-app.get("*", (req, res) => {
-  res.sendFile(path.join(frontendDistPath, "index.html"));
+// Health check endpoint
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", message: "Server is running" });
 });
 
+// Serve static files from the React app (Production Build)
+// This should come AFTER all API routes
+const frontendDistPath = path.join(__dirname, "../frontend/dist");
+
+// Check if dist folder exists
+import fs from 'fs';
+if (fs.existsSync(frontendDistPath)) {
+  app.use(express.static(frontendDistPath));
+  
+  // The "catchall" handler: for any request that doesn't match API routes,
+  // send back React's index.html file.
+  app.use((req, res) => {
+    res.sendFile(path.join(frontendDistPath, "index.html"));
+  });
+  
+  console.log(`✓ Serving frontend from: ${frontendDistPath}`);
+} else {
+  // If dist doesn't exist, show a helpful message
+  app.use((req, res) => {
+    res.status(503).send(`
+      <html>
+        <head><title>Build Required</title></head>
+        <body style="font-family: Arial; padding: 40px; text-align: center;">
+          <h1>⚠️ Frontend Build Not Found</h1>
+          <p>Please build the frontend first:</p>
+          <pre style="background: #f4f4f4; padding: 20px; border-radius: 8px; display: inline-block;">
+cd frontend
+npm run build
+          </pre>
+          <p>Then restart the server.</p>
+        </body>
+      </html>
+    `);
+  });
+  
+  console.log(`⚠ Frontend build not found at: ${frontendDistPath}`);
+  console.log(`⚠ Please run: npm run build --prefix frontend`);
+}
+
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Frontend served from: ${frontendDistPath}`);
+  console.log(`\n🚀 Server running on port ${PORT}`);
+  console.log(`📍 Local: http://localhost:${PORT}`);
+  console.log(`📡 API: http://localhost:${PORT}/api`);
+  console.log(`📁 Uploads: http://localhost:${PORT}/uploads\n`);
 });

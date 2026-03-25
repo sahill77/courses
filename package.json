@@ -10,12 +10,13 @@
     "build": "npm run build --prefix frontend",
     "build:full": "npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix backend",
     "start": "npm start --prefix backend",
-    "postbuild": "echo 'Build completed! Frontend build is in frontend/dist'"
+    "postbuild": "echo 'Build completed! Frontend build is in frontend/dist'",
+    "test:server": "node test-server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "devDependencies": {
     "concurrently": "^9.2.1"
   }
