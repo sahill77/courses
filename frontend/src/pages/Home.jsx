@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 export default function Home() {
     const [courses, setCourses] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { user } = useAuth();
 
@@ -172,8 +172,8 @@ export default function Home() {
                     </Link>
                 </div>
 
-                {loading ? (
-                    <div style={{ textAlign: 'center', padding: '4rem' }}>Loading courses...</div>
+                {courses.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>No featured courses available</div>
                 ) : (
                     <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
                         {courses.map(course => (
