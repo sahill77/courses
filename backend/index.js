@@ -27,16 +27,34 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 app.use(express.json());
+
+// CORS configuration - allow both development and production origins
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5000",
+  "https://courses-fr.vercel.app",
+  "https://courses-lilac-six.vercel.app"
+];
+
 app.use(
   cors({
-    origin: "https://courses-fr.vercel.app",
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
     credentials: true,
   })
 );
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// API Routes
+// API Routes - these must come BEFORE static file serving
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/admin", adminRoutes);
@@ -54,14 +72,10 @@ app.get("/api/health", (req, res) => {
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-// Handle React routing - return index.html for all non-API routes
-app.use((req, res, next) => {
-  // If the request is not for an API route, serve index.html
-  if (!req.path.startsWith('/api') && !req.path.startsWith('/uploads')) {
-    res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
-  } else {
-    next();
-  }
+// Handle React routing - return index.html for all other routes
+// This MUST be the last middleware
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
 });
 
 app.listen(PORT, () => {
