@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { showToast } from '../components/Toast';
 import { LogIn, Mail, Lock } from 'lucide-react';
 
 export default function Login() {
@@ -12,8 +13,10 @@ export default function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
         try {
             const loggedInUser = await login(email, password);
+            showToast.loginSuccess(loggedInUser.name);
             if (loggedInUser.role === 'admin') {
                 navigate('/admin');
             } else {
@@ -21,6 +24,7 @@ export default function Login() {
             }
         } catch (err) {
             const message = err.response?.data?.error || err.message || 'Login failed';
+            showToast.loginError(message);
             setError(typeof message === 'object' ? JSON.stringify(message) : String(message));
         }
     };

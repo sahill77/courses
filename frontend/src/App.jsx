@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+﻿import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
 import { queryClient } from './lib/queryClient';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -89,6 +90,19 @@ function AppContent() {
   return (
     <Router>
       <LoadingOverlay isLoading={isLoading} />
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+        gutter={8}
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: 'transparent',
+            boxShadow: 'none',
+            padding: 0,
+          },
+        }}
+      />
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         {!isAdmin && !isInstructor && <Navbar />}
         <main className='container' style={{ flex: 1 }}>
