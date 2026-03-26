@@ -102,6 +102,8 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+    console.log('🔗 Password Reset URL:', resetUrl);
+    console.log('📧 FRONTEND_URL from env:', process.env.FRONTEND_URL);
     await transporter.sendMail({
       from: `"SparksStream" <${process.env.EMAIL_USER}>`,
       to: user.email,
