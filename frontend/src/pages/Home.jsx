@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../services/api';
 import CourseCard from '../components/CourseCard';
-import { Sparkles, GraduationCap, Clock, Users, ArrowRight } from 'lucide-react';
+import { GraduationCap, Clock, Users, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -41,20 +41,6 @@ export default function Home() {
                 marginBottom: '4rem'
             }} className="grid grid-2 mobile-center">
                 <div>
-                    <div style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        background: 'rgba(99,102,241,0.1)',
-                        color: 'var(--primary)',
-                        padding: '0.4rem 1rem',
-                        borderRadius: '20px',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                        marginBottom: '1.5rem'
-                    }}>
-                        <Sparkles size={16} /> Empowering Future Developers
-                    </div>
                     <h1 style={{ lineHeight: 1.1, marginBottom: '1.5rem', fontWeight: 800 }} className="text-h1">
                         Master Your Craft with <span style={{ color: 'var(--primary)' }}>Expert-Led</span> Courses
                     </h1>

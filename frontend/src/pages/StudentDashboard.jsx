@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { Book, Play, LayoutDashboard, ChevronLeft, Sparkles } from 'lucide-react';
+import { Book, Play, LayoutDashboard, ChevronLeft } from 'lucide-react';
 
 export default function StudentDashboard() {
     const { user } = useAuth();
@@ -44,9 +44,6 @@ export default function StudentDashboard() {
                     {validEnrollments.length > 0 && (
                         <div className="glass stack-on-mobile" style={{ marginBottom: '3rem', padding: '2rem', display: 'flex', gap: '2rem', alignItems: 'center', border: '1px solid rgba(99,102,241,0.2)' }}>
                             <div style={{ flex: '1.5' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '1rem' }}>
-                                    <Sparkles size={16} /> RECOMMENDED FOR YOU
-                                </div>
                                 <h2 style={{ fontSize: '1.75rem', marginBottom: '1rem' }}>Resume: {validEnrollments[0].course?.title}</h2>
                                 <p style={{ color: 'var(--text-muted)', marginBottom: '2rem', lineHeight: 1.6 }}>
                                     You were last learning about <strong>{validEnrollments[0].course?.category}</strong>. Pick up exactly where you left off and keep the momentum going!
