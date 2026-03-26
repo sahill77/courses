@@ -25,26 +25,29 @@ const toastStyles = {
   },
 };
 
-// Custom toast component
+// Custom toast component with full responsiveness
 const CustomToast = ({ icon: Icon, title, message, type = 'success' }) => (
   <div
     style={{
       display: 'flex',
       alignItems: 'flex-start',
-      gap: '1rem',
-      padding: '1rem 1.25rem',
-      borderRadius: '12px',
-      minWidth: '300px',
-      maxWidth: '500px',
+      gap: 'clamp(0.75rem, 2vw, 1rem)',
+      padding: 'clamp(0.875rem, 2.5vw, 1.25rem)',
+      borderRadius: 'clamp(10px, 2vw, 12px)',
+      minWidth: 'min(280px, 85vw)',
+      maxWidth: 'min(500px, 90vw)',
+      width: 'auto',
       ...toastStyles[type],
       animation: 'slideIn 0.3s ease-out',
+      wordBreak: 'break-word',
+      overflowWrap: 'break-word',
     }}
   >
     <div
       style={{
         flexShrink: 0,
-        width: '40px',
-        height: '40px',
+        width: 'clamp(32px, 8vw, 40px)',
+        height: 'clamp(32px, 8vw, 40px)',
         borderRadius: '50%',
         background: 'rgba(255, 255, 255, 0.2)',
         display: 'flex',
@@ -53,13 +56,22 @@ const CustomToast = ({ icon: Icon, title, message, type = 'success' }) => (
         animation: 'bounce 0.6s ease-in-out',
       }}
     >
-      <Icon size={24} />
+      <Icon size={window.innerWidth < 768 ? 18 : 24} />
     </div>
-    <div style={{ flex: 1 }}>
-      <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.25rem' }}>
+    <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ 
+        fontWeight: 700, 
+        fontSize: 'clamp(0.875rem, 2.5vw, 1rem)', 
+        marginBottom: '0.25rem',
+        lineHeight: 1.3,
+      }}>
         {title}
       </div>
-      <div style={{ fontSize: '0.875rem', opacity: 0.9 }}>
+      <div style={{ 
+        fontSize: 'clamp(0.75rem, 2vw, 0.875rem)', 
+        opacity: 0.9,
+        lineHeight: 1.4,
+      }}>
         {message}
       </div>
     </div>
@@ -81,7 +93,7 @@ export const showToast = {
       ),
       {
         duration: 4000,
-        position: 'top-right',
+        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
       }
     );
   },
@@ -99,7 +111,7 @@ export const showToast = {
       ),
       {
         duration: 4000,
-        position: 'top-right',
+        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
       }
     );
   },
@@ -117,7 +129,7 @@ export const showToast = {
       ),
       {
         duration: 5000,
-        position: 'top-right',
+        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
       }
     );
   },
@@ -135,7 +147,7 @@ export const showToast = {
       ),
       {
         duration: 4000,
-        position: 'top-right',
+        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
       }
     );
   },
@@ -153,7 +165,7 @@ export const showToast = {
       ),
       {
         duration: 3000,
-        position: 'top-right',
+        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
       }
     );
   },
@@ -171,7 +183,7 @@ export const showToast = {
       ),
       {
         duration: 4000,
-        position: 'top-right',
+        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
       }
     );
   },
@@ -189,7 +201,7 @@ export const showToast = {
       ),
       {
         duration: 4000,
-        position: 'top-right',
+        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
       }
     );
   },
@@ -207,7 +219,7 @@ export const showToast = {
       ),
       {
         duration: 4000,
-        position: 'top-right',
+        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
       }
     );
   },
@@ -225,7 +237,7 @@ export const showToast = {
       ),
       {
         duration: 4000,
-        position: 'top-right',
+        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
       }
     );
   },
@@ -243,7 +255,7 @@ export const showToast = {
       ),
       {
         duration: 3000,
-        position: 'top-right',
+        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
       }
     );
   },
@@ -261,7 +273,7 @@ export const showToast = {
       ),
       {
         duration: 4000,
-        position: 'top-right',
+        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
       }
     );
   },
@@ -279,7 +291,7 @@ export const showToast = {
       ),
       {
         duration: 3000,
-        position: 'top-right',
+        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
       }
     );
   },
@@ -297,7 +309,7 @@ export const showToast = {
       ),
       {
         duration: 3000,
-        position: 'top-right',
+        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
       }
     );
   },
@@ -315,7 +327,7 @@ export const showToast = {
       ),
       {
         duration: 4000,
-        position: 'top-right',
+        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
       }
     );
   },
@@ -333,13 +345,13 @@ export const showToast = {
       ),
       {
         duration: 3000,
-        position: 'top-right',
+        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
       }
     );
   },
 };
 
-// Add animations
+// Add animations with media queries for responsiveness
 const style = document.createElement('style');
 style.textContent = `
   @keyframes slideIn {
@@ -359,6 +371,20 @@ style.textContent = `
     }
     50% {
       transform: scale(1.1);
+    }
+  }
+
+  /* Mobile responsiveness */
+  @media (max-width: 767px) {
+    @keyframes slideIn {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
   }
 `;
