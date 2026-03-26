@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../services/api';
 import CourseCard from '../components/CourseCard';
-import { Search, Sparkles, BookOpen, Clock, Award, Users, ArrowRight } from 'lucide-react';
+import { Sparkles, GraduationCap, Clock, Users, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -94,7 +94,7 @@ export default function Home() {
             <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', marginBottom: '5rem' }}>
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                     <div style={{ color: 'var(--primary)', background: 'rgba(99,102,241,0.1)', padding: '0.75rem', borderRadius: '12px' }}>
-                        <BookOpen size={24} />
+                        <GraduationCap size={24} />
                     </div>
                     <div>
                         <div style={{ fontWeight: 700 }}>100+ Courses</div>

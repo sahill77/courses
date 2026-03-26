@@ -1,393 +1,187 @@
-import toast from 'react-hot-toast';
-import { CheckCircle, XCircle, AlertCircle, Info, Sparkles, CreditCard, BookOpen, UserCheck } from 'lucide-react';
+import React from 'react';
+import toast, { Toaster } from 'react-hot-toast';
+import { CheckCircle, XCircle, AlertCircle, Info, BookOpen } from 'lucide-react';
 
-// Custom toast styles
-const toastStyles = {
-  success: {
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    color: '#fff',
-    boxShadow: '0 10px 40px rgba(102, 126, 234, 0.4)',
-  },
-  error: {
-    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    color: '#fff',
-    boxShadow: '0 10px 40px rgba(245, 87, 108, 0.4)',
-  },
-  warning: {
-    background: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
-    color: '#333',
-    boxShadow: '0 10px 40px rgba(252, 182, 159, 0.4)',
-  },
-  info: {
-    background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-    color: '#333',
-    boxShadow: '0 10px 40px rgba(168, 237, 234, 0.4)',
-  },
-};
+// Simple, modern toast with website logo
+const CustomToast = ({ type, title, message }) => {
+  const config = {
+    success: {
+      icon: CheckCircle,
+      bg: 'linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%)',
+      border: 'rgba(34, 197, 94, 0.3)',
+      iconColor: '#22c55e',
+      titleColor: '#22c55e'
+    },
+    error: {
+      icon: XCircle,
+      bg: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%)',
+      border: 'rgba(239, 68, 68, 0.3)',
+      iconColor: '#ef4444',
+      titleColor: '#ef4444'
+    },
+    warning: {
+      icon: AlertCircle,
+      bg: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%)',
+      border: 'rgba(245, 158, 11, 0.3)',
+      iconColor: '#f59e0b',
+      titleColor: '#f59e0b'
+    },
+    info: {
+      icon: Info,
+      bg: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.05) 100%)',
+      border: 'rgba(99, 102, 241, 0.3)',
+      iconColor: '#6366f1',
+      titleColor: '#6366f1'
+    }
+  };
 
-// Custom toast component with full responsiveness
-const CustomToast = ({ icon: Icon, title, message, type = 'success' }) => (
-  <div
-    style={{
-      display: 'flex',
-      alignItems: 'flex-start',
-      gap: 'clamp(0.75rem, 2vw, 1rem)',
-      padding: 'clamp(0.875rem, 2.5vw, 1.25rem)',
-      borderRadius: 'clamp(10px, 2vw, 12px)',
-      minWidth: 'min(280px, 85vw)',
-      maxWidth: 'min(500px, 90vw)',
-      width: 'auto',
-      ...toastStyles[type],
-      animation: 'slideIn 0.3s ease-out',
-      wordBreak: 'break-word',
-      overflowWrap: 'break-word',
-    }}
-  >
+  const { icon: StatusIcon, bg, border, iconColor, titleColor } = config[type];
+
+  return (
     <div
       style={{
-        flexShrink: 0,
-        width: 'clamp(32px, 8vw, 40px)',
-        height: 'clamp(32px, 8vw, 40px)',
-        borderRadius: '50%',
-        background: 'rgba(255, 255, 255, 0.2)',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        animation: 'bounce 0.6s ease-in-out',
+        alignItems: 'flex-start',
+        gap: 'clamp(0.75rem, 2vw, 1rem)',
+        padding: 'clamp(0.875rem, 2vw, 1rem)',
+        background: bg,
+        backdropFilter: 'blur(10px)',
+        border: `1px solid ${border}`,
+        borderRadius: 'clamp(10px, 2vw, 12px)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+        minWidth: 'clamp(280px, 90vw, 360px)',
+        maxWidth: 'min(90vw, 420px)',
+        color: 'var(--text-main)'
       }}
     >
-      <Icon size={window.innerWidth < 768 ? 18 : 24} />
-    </div>
-    <div style={{ flex: 1, minWidth: 0 }}>
-      <div style={{ 
-        fontWeight: 700, 
-        fontSize: 'clamp(0.875rem, 2.5vw, 1rem)', 
-        marginBottom: '0.25rem',
-        lineHeight: 1.3,
-      }}>
-        {title}
+      {/* Website Logo */}
+      <div
+        style={{
+          flexShrink: 0,
+          width: 'clamp(32px, 8vw, 40px)',
+          height: 'clamp(32px, 8vw, 40px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(99, 102, 241, 0.15)',
+          borderRadius: '8px',
+          border: '1px solid rgba(99, 102, 241, 0.3)'
+        }}
+      >
+        <BookOpen size={20} color="#6366f1" strokeWidth={2.5} />
       </div>
-      <div style={{ 
-        fontSize: 'clamp(0.75rem, 2vw, 0.875rem)', 
-        opacity: 0.9,
-        lineHeight: 1.4,
-      }}>
-        {message}
+
+      {/* Content */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '0.25rem'
+          }}
+        >
+          <StatusIcon size={16} color={iconColor} strokeWidth={2.5} />
+          <span
+            style={{
+              fontWeight: 700,
+              fontSize: 'clamp(0.875rem, 2.5vw, 0.95rem)',
+              color: titleColor,
+              lineHeight: 1.2
+            }}
+          >
+            {title}
+          </span>
+        </div>
+        {message && (
+          <p
+            style={{
+              margin: 0,
+              fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+              color: 'var(--text-muted)',
+              lineHeight: 1.4,
+              wordWrap: 'break-word',
+              paddingLeft: '1.5rem'
+            }}
+          >
+            {message}
+          </p>
+        )}
       </div>
     </div>
-  </div>
-);
-
-// Toast notification functions
-export const showToast = {
-  // Enrollment Success
-  enrollmentSuccess: (courseName) => {
-    toast.custom(
-      (t) => (
-        <CustomToast
-          icon={Sparkles}
-          title="Enrollment Successful! 🎉"
-          message={`You're now enrolled in "${courseName}". Start learning today!`}
-          type="success"
-        />
-      ),
-      {
-        duration: 4000,
-        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
-      }
-    );
-  },
-
-  // Enrollment Error
-  enrollmentError: (error) => {
-    toast.custom(
-      (t) => (
-        <CustomToast
-          icon={XCircle}
-          title="Enrollment Failed"
-          message={error || 'Unable to enroll. Please try again.'}
-          type="error"
-        />
-      ),
-      {
-        duration: 4000,
-        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
-      }
-    );
-  },
-
-  // Payment Success
-  paymentSuccess: (amount, courseName) => {
-    toast.custom(
-      (t) => (
-        <CustomToast
-          icon={CreditCard}
-          title="Payment Successful! 💳"
-          message={`₹${amount} paid for "${courseName}". Receipt sent to your email.`}
-          type="success"
-        />
-      ),
-      {
-        duration: 5000,
-        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
-      }
-    );
-  },
-
-  // Payment Error
-  paymentError: (error) => {
-    toast.custom(
-      (t) => (
-        <CustomToast
-          icon={XCircle}
-          title="Payment Failed"
-          message={error || 'Payment could not be processed. Please try again.'}
-          type="error"
-        />
-      ),
-      {
-        duration: 4000,
-        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
-      }
-    );
-  },
-
-  // Login Success
-  loginSuccess: (userName) => {
-    toast.custom(
-      (t) => (
-        <CustomToast
-          icon={UserCheck}
-          title={`Welcome back, ${userName}! 👋`}
-          message="You've successfully logged in."
-          type="success"
-        />
-      ),
-      {
-        duration: 3000,
-        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
-      }
-    );
-  },
-
-  // Login Error
-  loginError: (error) => {
-    toast.custom(
-      (t) => (
-        <CustomToast
-          icon={XCircle}
-          title="Login Failed"
-          message={error || 'Invalid credentials. Please try again.'}
-          type="error"
-        />
-      ),
-      {
-        duration: 4000,
-        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
-      }
-    );
-  },
-
-  // Registration Success
-  registrationSuccess: () => {
-    toast.custom(
-      (t) => (
-        <CustomToast
-          icon={CheckCircle}
-          title="Account Created! 🎊"
-          message="Welcome to SparksStream! You can now log in."
-          type="success"
-        />
-      ),
-      {
-        duration: 4000,
-        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
-      }
-    );
-  },
-
-  // Registration Error
-  registrationError: (error) => {
-    toast.custom(
-      (t) => (
-        <CustomToast
-          icon={XCircle}
-          title="Registration Failed"
-          message={error || 'Unable to create account. Please try again.'}
-          type="error"
-        />
-      ),
-      {
-        duration: 4000,
-        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
-      }
-    );
-  },
-
-  // Course Created
-  courseCreated: (courseName) => {
-    toast.custom(
-      (t) => (
-        <CustomToast
-          icon={BookOpen}
-          title="Course Created! 📚"
-          message={`"${courseName}" has been created successfully.`}
-          type="success"
-        />
-      ),
-      {
-        duration: 4000,
-        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
-      }
-    );
-  },
-
-  // Generic Success
-  success: (title, message) => {
-    toast.custom(
-      (t) => (
-        <CustomToast
-          icon={CheckCircle}
-          title={title}
-          message={message}
-          type="success"
-        />
-      ),
-      {
-        duration: 3000,
-        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
-      }
-    );
-  },
-
-  // Generic Error
-  error: (title, message) => {
-    toast.custom(
-      (t) => (
-        <CustomToast
-          icon={XCircle}
-          title={title}
-          message={message}
-          type="error"
-        />
-      ),
-      {
-        duration: 4000,
-        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
-      }
-    );
-  },
-
-  // Generic Warning
-  warning: (title, message) => {
-    toast.custom(
-      (t) => (
-        <CustomToast
-          icon={AlertCircle}
-          title={title}
-          message={message}
-          type="warning"
-        />
-      ),
-      {
-        duration: 3000,
-        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
-      }
-    );
-  },
-
-  // Generic Info
-  info: (title, message) => {
-    toast.custom(
-      (t) => (
-        <CustomToast
-          icon={Info}
-          title={title}
-          message={message}
-          type="info"
-        />
-      ),
-      {
-        duration: 3000,
-        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
-      }
-    );
-  },
-
-  // Password Reset Success
-  passwordResetSuccess: () => {
-    toast.custom(
-      (t) => (
-        <CustomToast
-          icon={CheckCircle}
-          title="Password Reset! 🔐"
-          message="Your password has been updated successfully."
-          type="success"
-        />
-      ),
-      {
-        duration: 4000,
-        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
-      }
-    );
-  },
-
-  // Profile Updated
-  profileUpdated: () => {
-    toast.custom(
-      (t) => (
-        <CustomToast
-          icon={CheckCircle}
-          title="Profile Updated! ✨"
-          message="Your profile has been updated successfully."
-          type="success"
-        />
-      ),
-      {
-        duration: 3000,
-        position: window.innerWidth < 768 ? 'top-center' : 'top-right',
-      }
-    );
-  },
+  );
 };
 
-// Add animations with media queries for responsiveness
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes slideIn {
-    from {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
+// Toast functions
+export const showToast = {
+  success: (title, message) => {
+    toast.custom((t) => <CustomToast type="success" title={title} message={message} />, {
+      duration: 4000,
+      position: window.innerWidth <= 768 ? 'top-center' : 'top-right'
+    });
+  },
 
-  @keyframes bounce {
-    0%, 100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.1);
-    }
-  }
+  error: (title, message) => {
+    toast.custom((t) => <CustomToast type="error" title={title} message={message} />, {
+      duration: 5000,
+      position: window.innerWidth <= 768 ? 'top-center' : 'top-right'
+    });
+  },
 
-  /* Mobile responsiveness */
-  @media (max-width: 767px) {
-    @keyframes slideIn {
-      from {
-        transform: translateY(-100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
-  }
-`;
-document.head.appendChild(style);
+  warning: (title, message) => {
+    toast.custom((t) => <CustomToast type="warning" title={title} message={message} />, {
+      duration: 4000,
+      position: window.innerWidth <= 768 ? 'top-center' : 'top-right'
+    });
+  },
 
-export default showToast;
+  info: (title, message) => {
+    toast.custom((t) => <CustomToast type="info" title={title} message={message} />, {
+      duration: 4000,
+      position: window.innerWidth <= 768 ? 'top-center' : 'top-right'
+    });
+  },
+
+  // Specialized toasts
+  loginSuccess: (userName) => {
+    showToast.success('Welcome Back!', `Hi ${userName}, you're successfully logged in`);
+  },
+
+  enrollmentSuccess: (courseName) => {
+    showToast.success('Enrollment Successful', `You're now enrolled in ${courseName}`);
+  },
+
+  enrollmentError: (error) => {
+    showToast.error('Enrollment Failed', error || 'Unable to enroll in this course');
+  },
+
+  paymentSuccess: (amount, courseName) => {
+    showToast.success('Payment Successful', `₹${amount} paid for ${courseName}`);
+  },
+
+  paymentError: (error) => {
+    showToast.error('Payment Failed', error || 'Payment could not be processed');
+  }
+};
+
+// Toaster component with responsive positioning
+export default function Toast() {
+  return (
+    <Toaster
+      position={window.innerWidth <= 768 ? 'top-center' : 'top-right'}
+      toastOptions={{
+        style: {
+          background: 'transparent',
+          boxShadow: 'none',
+          padding: 0
+        }
+      }}
+      containerStyle={{
+        top: window.innerWidth <= 768 ? '80px' : '20px',
+        right: window.innerWidth <= 768 ? 'auto' : '20px',
+        left: window.innerWidth <= 768 ? '50%' : 'auto',
+        transform: window.innerWidth <= 768 ? 'translateX(-50%)' : 'none'
+      }}
+    />
+  );
+}

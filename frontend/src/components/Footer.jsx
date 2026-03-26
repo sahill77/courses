@@ -77,7 +77,7 @@ export default function Footer() {
 
                 {/* Bottom Bar */}
                 <div style={{ paddingTop: '2rem', borderTop: '1px solid var(--border)', textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                    <p>&copy; {currentYear} SparksStream. All rights reserved. Made with ❤️ by Sparks Developers.</p>
+                    <p>&copy; {currentYear} SparksStream. All rights reserved. Crafted with excellence by Sparks Developers.</p>
                 </div>
             </div>
         </footer>
