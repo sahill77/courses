@@ -103,41 +103,66 @@ function AppContent() {
           },
         }}
       />
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%' }}>
-        {!isAdmin && !isInstructor && <Navbar />}
-        <main className='container' style={{ flex: '1 0 auto', paddingBottom: '2rem' }}>
-          <Routes>
-            {/* Public user-facing pages — admins/instructors get bounced */}
-            <Route path='/' element={<AdminRedirect><Home /></AdminRedirect>} />
-            <Route path='/courses' element={<AdminRedirect><Courses /></AdminRedirect>} />
-            <Route path='/course/:id' element={<AdminRedirect><CourseDetail /></AdminRedirect>} />
-            <Route path='/contact' element={<AdminRedirect><Contact /></AdminRedirect>} />
-            <Route path='/help' element={<HelpCenter />} />
-            <Route path='/privacy' element={<PrivacyPolicy />} />
-            <Route path='/terms' element={<Terms />} />
+      {!isAdmin && !isInstructor ? (
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          minHeight: '100vh',
+          position: 'relative'
+        }}>
+          <Navbar />
+          <main className='container' style={{ 
+            flex: '1 0 auto',
+            paddingTop: '1.5rem',
+            paddingBottom: '2rem',
+            width: '100%'
+          }}>
+            <Routes>
+              {/* Public user-facing pages — admins/instructors get bounced */}
+              <Route path='/' element={<AdminRedirect><Home /></AdminRedirect>} />
+              <Route path='/courses' element={<AdminRedirect><Courses /></AdminRedirect>} />
+              <Route path='/course/:id' element={<AdminRedirect><CourseDetail /></AdminRedirect>} />
+              <Route path='/contact' element={<AdminRedirect><Contact /></AdminRedirect>} />
+              <Route path='/help' element={<HelpCenter />} />
+              <Route path='/privacy' element={<PrivacyPolicy />} />
+              <Route path='/terms' element={<Terms />} />
 
-            {/* Guest-only routes */}
-            <Route path='/login' element={<GuestRoute><Login /></GuestRoute>} />
-            <Route path='/register' element={<GuestRoute><Register /></GuestRoute>} />
-            <Route path='/forgot-password' element={<GuestRoute><ForgotPassword /></GuestRoute>} />
-            <Route path='/reset-password/:token' element={<GuestRoute><ResetPassword /></GuestRoute>} />
+              {/* Guest-only routes */}
+              <Route path='/login' element={<GuestRoute><Login /></GuestRoute>} />
+              <Route path='/register' element={<GuestRoute><Register /></GuestRoute>} />
+              <Route path='/forgot-password' element={<GuestRoute><ForgotPassword /></GuestRoute>} />
+              <Route path='/reset-password/:token' element={<GuestRoute><ResetPassword /></GuestRoute>} />
 
-            {/* Student-only routes */}
-            <Route path='/dashboard' element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
-            <Route path='/learn/:id' element={<ProtectedRoute><LearningMode /></ProtectedRoute>} />
-            <Route path='/settings' element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+              {/* Student-only routes */}
+              <Route path='/dashboard' element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
+              <Route path='/learn/:id' element={<ProtectedRoute><LearningMode /></ProtectedRoute>} />
+              <Route path='/settings' element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
 
-            {/* Admin-only routes */}
-            <Route path='/admin' element={<AdminRoute><AdminPanel /></AdminRoute>} />
+              <Route path='*' element={<Navigate to='/' />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      ) : (
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          minHeight: '100vh',
+          position: 'relative'
+        }}>
+          <main style={{ flex: 1, width: '100%' }}>
+            <Routes>
+              {/* Admin-only routes */}
+              <Route path='/admin' element={<AdminRoute><AdminPanel /></AdminRoute>} />
 
-            {/* Instructor-only routes */}
-            <Route path='/instructor' element={<InstructorRoute><InstructorPanel /></InstructorRoute>} />
+              {/* Instructor-only routes */}
+              <Route path='/instructor' element={<InstructorRoute><InstructorPanel /></InstructorRoute>} />
 
-            <Route path='*' element={<Navigate to='/' />} />
-          </Routes>
-        </main>
-        {!isAdmin && !isInstructor && <Footer />}
-      </div>
+              <Route path='*' element={<Navigate to={isAdmin ? '/admin' : '/instructor'} />} />
+            </Routes>
+          </main>
+        </div>
+      )}
     </Router>
   );
 }
