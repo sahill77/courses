@@ -103,9 +103,9 @@ function AppContent() {
           },
         }}
       />
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%' }}>
         {!isAdmin && !isInstructor && <Navbar />}
-        <main className='container' style={{ flex: 1 }}>
+        <main className='container' style={{ flex: '1 0 auto', paddingBottom: '2rem' }}>
           <Routes>
             {/* Public user-facing pages — admins/instructors get bounced */}
             <Route path='/' element={<AdminRedirect><Home /></AdminRedirect>} />

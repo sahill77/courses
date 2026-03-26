@@ -32,8 +32,16 @@ export default function Courses() {
     }, []);
 
     const filteredCourses = courses.filter(c => {
-        const matchesSearch = c.title.toLowerCase().includes(search.toLowerCase()) ||
-            c.instructor.toLowerCase().includes(search.toLowerCase());
+        const instructorName = typeof c.instructor === 'string' 
+            ? c.instructor 
+            : (c.instructor?.name || '');
+        
+        const matchesSearch = 
+            c.title?.toLowerCase().includes(search.toLowerCase()) ||
+            instructorName.toLowerCase().includes(search.toLowerCase()) ||
+            c.category?.toLowerCase().includes(search.toLowerCase()) ||
+            c.description?.toLowerCase().includes(search.toLowerCase());
+        
         const matchesCategory = categoryQuery ? c.category === categoryQuery : true;
         return matchesSearch && matchesCategory;
     });
