@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { KeyRound, Lock, CheckCircle, XCircle } from 'lucide-react';
+import { KeyRound, Lock, CheckCircle, XCircle, Eye, EyeOff } from 'lucide-react';
 import axios from '../services/api';
 
 export default function ResetPassword() {
@@ -11,6 +11,8 @@ export default function ResetPassword() {
     const [confirm, setConfirm] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
 
     useEffect(() => {
         const verifyToken = async () => {
@@ -41,8 +43,9 @@ export default function ResetPassword() {
         }
     };
 
-    const inputStyle = { width: '100%', padding: '0.75rem 0.75rem 0.75rem 2.5rem', borderRadius: '8px', background: 'rgba(0,0,0,0.05)', border: '1px solid var(--border)', color: 'var(--text-main)' };
+    const inputStyle = { width: '100%', padding: '0.75rem 2.5rem 0.75rem 2.5rem', borderRadius: '8px', background: 'rgba(0,0,0,0.05)', border: '1px solid var(--border)', color: 'var(--text-main)' };
     const iconStyle = { position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' };
+    const eyeIconStyle = { position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', cursor: 'pointer', transition: 'color 0.2s' };
 
     return (
         <div className="animate-fade-in" style={{ maxWidth: '400px', margin: '4rem auto' }}>
@@ -85,11 +88,41 @@ export default function ResetPassword() {
                         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem' }}>
                             <div style={{ position: 'relative' }}>
                                 <Lock size={18} style={iconStyle} />
-                                <input type="password" placeholder="New Password" required value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} />
+                                <input 
+                                    type={showPassword ? "text" : "password"} 
+                                    placeholder="New Password" 
+                                    required 
+                                    value={password} 
+                                    onChange={(e) => setPassword(e.target.value)} 
+                                    style={inputStyle} 
+                                />
+                                <div 
+                                    onClick={() => setShowPassword(!showPassword)} 
+                                    style={eyeIconStyle}
+                                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </div>
                             </div>
                             <div style={{ position: 'relative' }}>
                                 <Lock size={18} style={iconStyle} />
-                                <input type="password" placeholder="Confirm New Password" required value={confirm} onChange={(e) => setConfirm(e.target.value)} style={inputStyle} />
+                                <input 
+                                    type={showConfirm ? "text" : "password"} 
+                                    placeholder="Confirm New Password" 
+                                    required 
+                                    value={confirm} 
+                                    onChange={(e) => setConfirm(e.target.value)} 
+                                    style={inputStyle} 
+                                />
+                                <div 
+                                    onClick={() => setShowConfirm(!showConfirm)} 
+                                    style={eyeIconStyle}
+                                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                                >
+                                    {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </div>
                             </div>
                             <button type="submit" className="btn btn-primary" disabled={loading} style={{ justifyContent: 'center' }}>
                                 {loading ? 'Resetting...' : 'Reset Password'}
