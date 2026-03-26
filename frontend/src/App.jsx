@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { LoadingProvider, useLoading } from './context/LoadingContext';
+import { setLoadingCallbacks } from './services/api';
 import Navbar from './components/Navbar';
+import LoadingOverlay from './components/LoadingOverlay';
 import Home from './pages/Home';
 import Courses from './pages/Courses';
 import Login from './pages/Login';
@@ -72,11 +75,18 @@ const AdminRedirect = ({ children }) => {
 
 function AppContent() {
   const { user } = useAuth();
+  const { isLoading, showLoading, hideLoading } = useLoading();
   const isAdmin = user?.role === 'admin';
   const isInstructor = user?.role === 'instructor';
 
+  // Set loading callbacks for axios interceptors
+  useEffect(() => {
+    setLoadingCallbacks(showLoading, hideLoading);
+  }, [showLoading, hideLoading]);
+
   return (
     <Router>
+      <LoadingOverlay isLoading={isLoading} />
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         {!isAdmin && !isInstructor && <Navbar />}
         <main className='container' style={{ flex: 1 }}>
@@ -119,9 +129,11 @@ function AppContent() {
 export default function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
+      <LoadingProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </LoadingProvider>
     </ThemeProvider>
   );
 }
