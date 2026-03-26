@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import InstructorSidebar from '../features/instructor/InstructorSidebar';
 import Pagination from '../features/common/Pagination';
+import { showToast } from '../components/Toast';
 
 const Section = ({ title, field, children, onSave, messages, saving }) => (
     <div className="glass" style={{ padding: '1.5rem', borderRadius: '16px', marginBottom: '1rem' }}>
@@ -176,7 +177,7 @@ export default function InstructorPanel() {
     if (!file) return;
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
     if (!allowedTypes.includes(file.type)) {
-      alert('Invalid file type. Only JPEG, JPG, and PNG are allowed.');
+      showToast.error('Invalid File Type', 'Only JPEG, JPG, and PNG files are allowed');
       return;
     }
     const formData = new FormData();
@@ -185,8 +186,9 @@ export default function InstructorPanel() {
       setUploading(true);
       const { data } = await axios.post('/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       setCurrentCourse({ ...currentCourse, thumbnail: data.url });
+      showToast.success('Upload Successful', 'Image has been uploaded');
     } catch (err) {
-      alert(err.response?.data?.error || 'Upload failed');
+      showToast.error('Upload Failed', err.response?.data?.error || 'Failed to upload image');
     } finally {
       setUploading(false);
     }
@@ -197,7 +199,10 @@ export default function InstructorPanel() {
     try {
       let courseData = { ...currentCourse };
       if (courseData.category === '__custom__') {
-        if (!customCategory.trim()) { alert("Please enter a category name"); return; }
+        if (!customCategory.trim()) { 
+          showToast.error('Category Required', 'Please enter a category name');
+          return; 
+        }
         try {
           const { data: newCat } = await axios.post('/categories', { name: customCategory.trim() });
           courseData.category = newCat.name;
@@ -211,8 +216,10 @@ export default function InstructorPanel() {
       }
       if (courseData._id) {
         await axios.put(`/instructor/courses/${courseData._id}`, courseData);
+        showToast.success('Course Updated', 'Course details have been updated');
       } else {
         await axios.post('/instructor/courses', courseData);
+        showToast.success('Course Created', 'New course has been submitted for approval');
       }
       setShowModal(false);
       setCurrentCourse({ title: '', description: '', category: '', price: '', thumbnail: '' });
@@ -221,7 +228,7 @@ export default function InstructorPanel() {
       fetchStats();
       fetchCategories();
     } catch (err) {
-      alert(err.response?.data?.error || 'Operation failed');
+      showToast.error('Operation Failed', err.response?.data?.error || 'Failed to save course');
     }
   };
 
@@ -231,8 +238,9 @@ export default function InstructorPanel() {
       await axios.delete(`/instructor/courses/${id}`);
       fetchCourses();
       fetchStats();
+      showToast.success('Course Deleted', 'Course has been permanently removed');
     } catch (err) {
-      alert('Delete failed');
+      showToast.error('Delete Failed', 'Failed to delete course');
     }
   };
 
@@ -254,8 +262,9 @@ export default function InstructorPanel() {
       });
       setContentModalCourse(null);
       fetchCourses();
+      showToast.success('Content Saved', 'Course content and FAQs have been updated');
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to save content');
+      showToast.error('Save Failed', err.response?.data?.error || 'Failed to save content');
     } finally {
       setContentSaving(false);
     }

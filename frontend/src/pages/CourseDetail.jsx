@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { CheckCircle, PlayCircle, BookOpen, User, ChevronDown, ChevronLeft, Lock } from 'lucide-react';
+import { showToast } from '../components/Toast';
 
 const ModuleItem = ({ module, isEnrolled, index }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -116,10 +117,10 @@ export default function CourseDetail() {
             setEnrolling(true);
             try {
                 await axios.post(`/courses/${id}/enroll`);
-                alert('Successfully enrolled!');
+                showToast.enrollmentSuccess(course.title);
                 navigate('/dashboard');
             } catch (err) {
-                alert(err.response?.data?.error || 'Enrollment failed');
+                showToast.enrollmentError(err.response?.data?.error || 'Enrollment failed');
             } finally {
                 setEnrolling(false);
             }
@@ -165,11 +166,12 @@ export default function CourseDetail() {
                             razorpay_signature: response.razorpay_signature,
                             courseId: id
                         });
-                        alert(verifyResult.data.message || 'Successfully enrolled!');
+                        showToast.paymentSuccess(course.price, course.title);
+                        showToast.enrollmentSuccess(course.title);
                         navigate('/dashboard');
                     } catch (verifyErr) {
                         console.error('Payment verification error:', verifyErr);
-                        alert(verifyErr.response?.data?.error || 'Payment verification failed');
+                        showToast.paymentError(verifyErr.response?.data?.error || 'Payment verification failed');
                     } finally {
                         setEnrolling(false);
                     }
@@ -184,7 +186,7 @@ export default function CourseDetail() {
                 modal: {
                     ondismiss: function() {
                         setEnrolling(false);
-                        alert('Payment cancelled');
+                        showToast.warning('Payment Cancelled', 'You cancelled the payment process');
                     }
                 }
             };
@@ -194,13 +196,13 @@ export default function CourseDetail() {
             rzp.on('payment.failed', function (response) {
                 setEnrolling(false);
                 console.error('Payment failed:', response.error);
-                alert('Payment Failed: ' + (response.error.description || 'Please try again'));
+                showToast.paymentError(response.error.description || 'Please try again');
             });
             
             rzp.open();
         } catch (err) {
             console.error('Payment initiation error:', err);
-            alert(err.response?.data?.error || err.message || 'Failed to initiate payment');
+            showToast.error('Payment Error', err.response?.data?.error || err.message || 'Failed to initiate payment');
             setEnrolling(false);
         }
     };

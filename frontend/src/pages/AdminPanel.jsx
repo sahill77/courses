@@ -8,6 +8,7 @@ import DashboardOverview from '../features/admin/DashboardOverview';
 import HelpTicketsTab from '../features/admin/HelpTicketsTab';
 import Pagination from '../features/common/Pagination';
 import ManageCourseContentModal from '../features/admin/ManageCourseContentModal';
+import { showToast } from '../components/Toast';
 
 const Section = ({ title, field, children, onSave, messages, saving }) => (
     <div className="glass" style={{ padding: '1.5rem', borderRadius: '16px', marginBottom: '1rem' }}>
@@ -202,20 +203,29 @@ export default function AdminPanel() {
       await axios.put(`/admin/instructors/${id}/approve`);
       fetchInstructors();
       fetchPendingCourses();
-    } catch (err) { alert('Failed to approve instructor'); }
+      showToast.success('Instructor Approved', 'Instructor has been approved successfully');
+    } catch (err) { 
+      showToast.error('Approval Failed', 'Failed to approve instructor');
+    }
   };
   const handleBlockInstructor = async (id) => {
     if (!window.confirm('Block this instructor? Their account will be suspended.')) return;
     try {
       await axios.put(`/admin/instructors/${id}/block`);
       fetchInstructors();
-    } catch (err) { alert('Failed to block instructor'); }
+      showToast.success('Instructor Blocked', 'Instructor account has been suspended');
+    } catch (err) { 
+      showToast.error('Block Failed', 'Failed to block instructor');
+    }
   };
   const handleUnblockInstructor = async (id) => {
     try {
       await axios.put(`/admin/instructors/${id}/unblock`);
       fetchInstructors();
-    } catch (err) { alert('Failed to unblock instructor'); }
+      showToast.success('Instructor Unblocked', 'Instructor account has been restored');
+    } catch (err) { 
+      showToast.error('Unblock Failed', 'Failed to unblock instructor');
+    }
   };
 
   // Admin actions for courses
@@ -224,7 +234,10 @@ export default function AdminPanel() {
       await axios.put(`/admin/courses/${id}/approve`);
       fetchPendingCourses();
       fetchCourses();
-    } catch (err) { alert('Failed to approve course'); }
+      showToast.success('Course Approved', 'Course is now live and visible to students');
+    } catch (err) { 
+      showToast.error('Approval Failed', 'Failed to approve course');
+    }
   };
   const handleRejectCourse = async (id) => {
     if (!window.confirm('Are you sure you want to reject and delete this course?')) return;
@@ -232,13 +245,19 @@ export default function AdminPanel() {
       await axios.put(`/admin/courses/${id}/reject`);
       fetchPendingCourses();
       fetchCourses();
-    } catch (err) { alert('Failed to reject course'); }
+      showToast.success('Course Rejected', 'Course has been rejected and removed');
+    } catch (err) { 
+      showToast.error('Rejection Failed', 'Failed to reject course');
+    }
   };
   const handleToggleCourseHome = async (id) => {
     try {
       await axios.put(`/admin/courses/${id}/toggle-home`);
       fetchCourses();
-    } catch (err) { alert('Failed to toggle homepage visibility'); }
+      showToast.success('Visibility Updated', 'Homepage visibility has been toggled');
+    } catch (err) { 
+      showToast.error('Update Failed', 'Failed to toggle homepage visibility');
+    }
   };
 
   // Admin actions for categories
@@ -247,7 +266,10 @@ export default function AdminPanel() {
       await axios.put(`/admin/categories/${id}/approve`);
       fetchPendingCategories();
       fetchCategories();
-    } catch (err) { alert('Failed to approve category'); }
+      showToast.success('Category Approved', 'Category is now available for courses');
+    } catch (err) { 
+      showToast.error('Approval Failed', 'Failed to approve category');
+    }
   };
   const handleRejectCategory = async (id) => {
     if (!window.confirm('Are you sure you want to reject and delete this category?')) return;
@@ -255,7 +277,10 @@ export default function AdminPanel() {
       await axios.put(`/admin/categories/${id}/reject`);
       fetchPendingCategories();
       fetchCategories();
-    } catch (err) { alert('Failed to reject category'); }
+      showToast.success('Category Rejected', 'Category has been rejected and removed');
+    } catch (err) { 
+      showToast.error('Rejection Failed', 'Failed to reject category');
+    }
   };
 
   // Admin delete actions
@@ -264,7 +289,10 @@ export default function AdminPanel() {
     try {
       await axios.delete(`/admin/categories/${id}`);
       fetchCategories();
-    } catch (err) { alert('Failed to delete category'); }
+      showToast.success('Category Deleted', 'Category has been permanently removed');
+    } catch (err) { 
+      showToast.error('Delete Failed', 'Failed to delete category');
+    }
   };
   const handleDeleteUser = async (id) => {
     if (!window.confirm('Are you sure you want to delete this user? All their enrollments will be removed.')) return;
@@ -272,7 +300,10 @@ export default function AdminPanel() {
       await axios.delete(`/admin/users/${id}`);
       fetchUsers();
       fetchStats();
-    } catch (err) { alert('Failed to delete user'); }
+      showToast.success('User Deleted', 'User account has been permanently removed');
+    } catch (err) { 
+      showToast.error('Delete Failed', 'Failed to delete user');
+    }
   };
   const handleDeleteInstructor = async (id) => {
     if (!window.confirm('Are you sure you want to delete this instructor? All their courses and enrollments will be removed.')) return;
@@ -281,7 +312,10 @@ export default function AdminPanel() {
       fetchInstructors();
       fetchCourses();
       fetchStats();
-    } catch (err) { alert('Failed to delete instructor'); }
+      showToast.success('Instructor Deleted', 'Instructor and all their courses have been removed');
+    } catch (err) { 
+      showToast.error('Delete Failed', 'Failed to delete instructor');
+    }
   };
 
   useEffect(() => {
@@ -309,7 +343,7 @@ export default function AdminPanel() {
 
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
     if (!allowedTypes.includes(file.type)) {
-      alert('Invalid file type. Only JPEG, JPG, and PNG are allowed.');
+      showToast.error('Invalid File Type', 'Only JPEG, JPG, and PNG files are allowed');
       return;
     }
 
@@ -326,8 +360,9 @@ export default function AdminPanel() {
       } else {
         setCurrentCategory({ ...currentCategory, icon: data.url });
       }
+      showToast.success('Upload Successful', 'Image has been uploaded');
     } catch (err) {
-      alert(err.response?.data?.error || 'Upload failed');
+      showToast.error('Upload Failed', err.response?.data?.error || 'Failed to upload image');
     } finally {
       setUploading(false);
     }
@@ -338,14 +373,16 @@ export default function AdminPanel() {
     try {
       if (currentCategory._id) {
         await axios.put(`/categories/${currentCategory._id}`, currentCategory);
+        showToast.success('Category Updated', 'Category has been updated successfully');
       } else {
         await axios.post('/categories', currentCategory);
+        showToast.success('Category Created', 'New category has been added');
       }
       setShowCategoryModal(false);
       fetchCategories();
       fetchCourses();
     } catch (err) {
-      alert(err.response?.data?.error || 'Operation failed');
+      showToast.error('Operation Failed', err.response?.data?.error || 'Failed to save category');
     }
   };
 
@@ -357,7 +394,7 @@ export default function AdminPanel() {
       // If adding a new category
       if (courseData.category === '__custom__') {
         if (!customCategory.trim()) {
-           alert("Please enter a category name");
+           showToast.error('Category Required', 'Please enter a category name');
            return;
         }
         try {
@@ -375,8 +412,10 @@ export default function AdminPanel() {
 
       if (courseData._id) {
         await axios.put(`/admin/courses/${courseData._id}`, courseData);
+        showToast.success('Course Updated', 'Course details have been updated');
       } else {
         await axios.post('/admin/courses', courseData);
+        showToast.success('Course Created', 'New course has been added successfully');
       }
       setShowModal(false);
       setCurrentCourse({ title: '', description: '', instructor: '', category: '', price: '', thumbnail: '' });
@@ -384,7 +423,7 @@ export default function AdminPanel() {
       fetchCourses();
       fetchCategories();
     } catch (err) {
-      alert(err.response?.data?.error || 'Operation failed');
+      showToast.error('Operation Failed', err.response?.data?.error || 'Failed to save course');
     }
   };
 
@@ -393,8 +432,9 @@ export default function AdminPanel() {
     try {
       await axios.delete(`/admin/courses/${id}`);
       fetchCourses();
+      showToast.success('Course Deleted', 'Course has been permanently removed');
     } catch (err) {
-      alert('Delete failed');
+      showToast.error('Delete Failed', 'Failed to delete course');
     }
   };
 

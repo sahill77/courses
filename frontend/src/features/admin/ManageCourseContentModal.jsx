@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Plus, Trash2, Video, HelpCircle, Save, Layers } from 'lucide-react';
 import axios from '../../services/api';
+import { showToast } from '../../components/Toast';
 
 export default function ManageCourseContentModal({ course, onClose, onSaveSuccess }) {
   const [activeTab, setActiveTab] = useState('curriculum');
@@ -17,8 +18,9 @@ export default function ManageCourseContentModal({ course, onClose, onSaveSucces
         faqs
       });
       onSaveSuccess();
+      showToast.success('Content Saved', 'Course content and FAQs have been updated');
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to save content');
+      showToast.error('Save Failed', err.response?.data?.error || 'Failed to save content');
     } finally {
       setSaving(false);
     }

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from '../../services/api';
 import { HelpCircle, Trash2, Eye } from 'lucide-react';
 import Pagination from '../common/Pagination';
+import { showToast } from '../../components/Toast';
 
 export default function HelpTicketsTab({ helpTickets, fetchHelpTickets }) {
   const [selectedTicket, setSelectedTicket] = useState(null);
@@ -18,8 +19,9 @@ export default function HelpTicketsTab({ helpTickets, fetchHelpTickets }) {
       if (selectedTicket?._id === id) {
         setSelectedTicket({ ...selectedTicket, ...updates });
       }
+      showToast.success('Ticket Updated', 'Help ticket has been updated successfully');
     } catch (err) {
-      alert('Failed to update ticket');
+      showToast.error('Update Failed', 'Failed to update ticket');
     }
   };
 
@@ -29,8 +31,9 @@ export default function HelpTicketsTab({ helpTickets, fetchHelpTickets }) {
       await axios.delete(`/admin/help-tickets/${id}`);
       fetchHelpTickets();
       if (selectedTicket?._id === id) setSelectedTicket(null);
+      showToast.success('Ticket Deleted', 'Help ticket has been permanently removed');
     } catch (err) {
-      alert('Failed to delete ticket');
+      showToast.error('Delete Failed', 'Failed to delete ticket');
     }
   };
 
