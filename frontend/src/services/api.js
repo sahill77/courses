@@ -2,6 +2,9 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "https://courses-lilac-six.vercel.app/api",
+  headers: {
+    'Cache-Control': 'max-age=300', // Cache for 5 minutes
+  },
 });
 
 // Store loading callbacks
@@ -27,6 +30,12 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Add cache headers for GET requests
+    if (config.method === 'get') {
+      config.headers['Cache-Control'] = 'max-age=300';
+    }
+    
     return config;
   },
   (error) => {

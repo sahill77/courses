@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './lib/queryClient';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { LoadingProvider, useLoading } from './context/LoadingContext';
@@ -128,12 +130,14 @@ function AppContent() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <LoadingProvider>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
-      </LoadingProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <LoadingProvider>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </LoadingProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
