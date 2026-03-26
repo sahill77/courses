@@ -33,12 +33,10 @@ app.use(
     credentials: true,
   })
 );
-app.get("/", (req, res) => {
-  res.send("app is now running");
-});
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/admin", adminRoutes);
@@ -48,6 +46,23 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/instructor", instructorRoutes);
 app.use("/api/payments", paymentRoutes);
 
+// Health check endpoint
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", message: "Server is running" });
+});
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+// Handle React routing - return index.html for all non-API routes
+app.use((req, res, next) => {
+  // If the request is not for an API route, serve index.html
+  if (!req.path.startsWith('/api') && !req.path.startsWith('/uploads')) {
+    res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+  } else {
+    next();
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
