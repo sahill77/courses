@@ -1,0 +1,192 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    CORRECT DEPLOYMENT ARCHITECTURE
+═══════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              USER'S BROWSER                                 │
+│                                                                             │
+│  User types: https://courses-fr.vercel.app/login                           │
+│                                                                             │
+└──────────────────────────────┬──────────────────────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    FRONTEND VERCEL DEPLOYMENT                               │
+│                    https://courses-fr.vercel.app                            │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │  React Application (SPA)                                            │   │
+│  │                                                                     │   │
+│  │  Routes:                                                            │   │
+│  │  • /                    → Home page                                │   │
+│  │  • /login               → Login page                               │   │
+│  │  • /register            → Register page                            │   │
+│  │  • /courses             → Courses page                             │   │
+│  │  • /reset-password/:token → Reset password page                    │   │
+│  │  • /student-dashboard  → Student dashboard                         │   │
+│  │  • /admin-panel        → Admin panel                               │   │
+│  │  • ... and more                                                    │   │
+│  │                                                                     │   │
+│  │  All routes serve index.html → React Router handles routing        │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  Environment Variables:                                                     │
+│  • VITE_API_URL=https://courses-lilac-six.vercel.app/api                   │
+│  • VITE_RAZORPAY_KEY_ID=rzp_test_SUkf1Ndyy9Mvnk                             │
+│                                                                             │
+└──────────────────────────────┬──────────────────────────────────────────────┘
+                               │
+                               │ Makes API calls
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    BACKEND VERCEL DEPLOYMENT                                │
+│                    https://courses-lilac-six.vercel.app                     │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │  Express API Server                                                 │   │
+│  │                                                                     │   │
+│  │  API Endpoints:                                                     │   │
+│  │  • /api/health          → Health check                             │   │
+│  │  • /api/auth/login      → User login                               │   │
+│  │  • /api/auth/register   → User registration                        │   │
+│  │  • /api/auth/forgot-password → Send reset email                    │   │
+│  │  • /api/auth/reset-password/:token → Reset password                │   │
+│  │  • /api/courses         → Get courses                              │   │
+│  │  • /api/admin/*         → Admin endpoints                          │   │
+│  │  • /api/payments/*      → Payment endpoints                        │   │
+│  │  • ... and more                                                    │   │
+│  │                                                                     │   │
+│  │  Non-API routes → Return 404 (this is correct!)                    │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  Environment Variables:                                                     │
+│  • NODE_ENV=production                                                      │
+│  • FRONTEND_URL=https://courses-fr.vercel.app                               │
+│  • MONGODB_URI=mongodb+srv://...                                            │
+│  • JWT_SECRET=supersecretkey123                                             │
+│  • EMAIL_USER=sahilvanzara49@gmail.com                                      │
+│  • EMAIL_PASS=iigjcpurtituikis                                              │
+│  • RAZORPAY_KEY_ID=rzp_test_SUkf1Ndyy9Mvnk                                  │
+│  • RAZORPAY_KEY_SECRET=klu4beIZ1EMDi2F1OwYlRg3n                              │
+│                                                                             │
+└──────────────────────────────┬──────────────────────────────────────────────┘
+                               │
+                               │ Connects to
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         MONGODB DATABASE                                    │
+│                         (MongoDB Atlas)                                     │
+│                                                                             │
+│  Collections:                                                               │
+│  • users                                                                    │
+│  • courses                                                                  │
+│  • enrollments                                                              │
+│  • categories                                                               │
+│  • instructors                                                              │
+│  • helptickets                                                              │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+                         PASSWORD RESET FLOW
+═══════════════════════════════════════════════════════════════════════════════
+
+Step 1: User Requests Reset
+┌──────────────────────────────────────────────────────────────────────────┐
+│ User visits: https://courses-fr.vercel.app/login                        │
+│ Clicks: "Forgot password?"                                              │
+│ Enters: email@example.com                                               │
+└────────────────────────────┬─────────────────────────────────────────────┘
+                             │
+                             ▼
+Step 2: Frontend Makes API Call
+┌──────────────────────────────────────────────────────────────────────────┐
+│ POST https://courses-lilac-six.vercel.app/api/auth/forgot-password      │
+│ Body: { "email": "email@example.com" }                                  │
+└────────────────────────────┬─────────────────────────────────────────────┘
+                             │
+                             ▼
+Step 3: Backend Sends Email
+┌──────────────────────────────────────────────────────────────────────────┐
+│ Backend generates token: abc123xyz                                       │
+│ Backend sends email with link:                                           │
+│ https://courses-fr.vercel.app/reset-password/abc123xyz                   │
+│                                                                          │
+│ ✅ CORRECT: Uses FRONTEND_URL from environment                           │
+│ ❌ WRONG: Would use localhost if FRONTEND_URL not set                    │
+└────────────────────────────┬─────────────────────────────────────────────┘
+                             │
+                             ▼
+Step 4: User Clicks Email Link
+┌──────────────────────────────────────────────────────────────────────────┐
+│ Opens: https://courses-fr.vercel.app/reset-password/abc123xyz           │
+│ Frontend loads reset password page                                       │
+│ User enters new password                                                 │
+└────────────────────────────┬─────────────────────────────────────────────┘
+                             │
+                             ▼
+Step 5: Frontend Makes API Call
+┌──────────────────────────────────────────────────────────────────────────┐
+│ POST https://courses-lilac-six.vercel.app/api/auth/reset-password/abc123xyz │
+│ Body: { "password": "newpassword123" }                                  │
+└────────────────────────────┬─────────────────────────────────────────────┘
+                             │
+                             ▼
+Step 6: Backend Updates Password
+┌──────────────────────────────────────────────────────────────────────────┐
+│ Backend validates token                                                  │
+│ Backend updates password in MongoDB                                      │
+│ Backend returns success                                                  │
+└────────────────────────────┬─────────────────────────────────────────────┘
+                             │
+                             ▼
+Step 7: User Redirected
+┌──────────────────────────────────────────────────────────────────────────┐
+│ Frontend shows success message                                           │
+│ Redirects to: https://courses-fr.vercel.app/login                        │
+│ User can login with new password                                         │
+└──────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+                         WHAT YOU'RE DOING WRONG
+═══════════════════════════════════════════════════════════════════════════════
+
+❌ WRONG: Accessing Backend URL in Browser
+┌──────────────────────────────────────────────────────────────────────────┐
+│ You type: https://courses-lilac-six.vercel.app                          │
+│ Browser shows: "Not Found"                                              │
+│                                                                          │
+│ WHY: Backend is API server, not a website!                              │
+│      It doesn't serve HTML pages!                                       │
+│      It only responds to /api/* endpoints!                              │
+└──────────────────────────────────────────────────────────────────────────┘
+
+✅ CORRECT: Accessing Frontend URL in Browser
+┌──────────────────────────────────────────────────────────────────────────┐
+│ You type: https://courses-fr.vercel.app                                 │
+│ Browser shows: Home page                                                │
+│                                                                          │
+│ WHY: Frontend is the website!                                           │
+│      It serves the React application!                                   │
+│      Users should access this URL!                                      │
+└──────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+                         QUICK REFERENCE
+═══════════════════════════════════════════════════════════════════════════════
+
+FRONTEND (Website - Users Access This)
+URL: https://courses-fr.vercel.app
+Purpose: User interface
+Access: Type in browser
+Pages: /login, /courses, /reset-password, etc.
+
+BACKEND (API Server - Only for API Calls)
+URL: https://courses-lilac-six.vercel.app
+Purpose: Process API requests
+Access: Only through API calls
+Endpoints: /api/auth/*, /api/courses/*, etc.
+
+═══════════════════════════════════════════════════════════════════════════════

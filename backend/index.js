@@ -69,14 +69,24 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "Server is running" });
 });
 
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
+// Only serve frontend in development (not on Vercel)
+if (process.env.NODE_ENV !== 'production') {
+  // Serve static files from the React app
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-// Handle React routing - return index.html for all other routes
-// This MUST be the last middleware
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
-});
+  // Handle React routing - return index.html for all other routes
+  app.use((req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+  });
+} else {
+  // In production, return 404 for non-API routes
+  app.use((req, res) => {
+    res.status(404).json({ 
+      error: "Not Found",
+      message: "This is the API server. Please access the frontend at https://courses-fr.vercel.app"
+    });
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
