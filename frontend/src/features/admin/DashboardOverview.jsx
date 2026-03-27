@@ -148,7 +148,15 @@ export default function DashboardOverview({ user, stats, usersList, categories }
               </tr>
             </thead>
             <tbody>
-              {usersList.filter(u => u.role !== 'admin').slice().reverse().slice(0, 5).map(userItem => (
+              {usersList
+                .filter(u => u.role !== 'admin')
+                .sort((a, b) => {
+                  const dateA = new Date(a.createdAt || 0);
+                  const dateB = new Date(b.createdAt || 0);
+                  return dateB - dateA; // Descending order (newest first)
+                })
+                .slice(0, 5)
+                .map(userItem => (
                 <tr key={userItem._id} style={{ borderBottom: '1px solid var(--border)' }}>
                   <td style={{ padding: '1rem 1.25rem' }}>{userItem.name}</td>
                   <td style={{ padding: '1rem 1.25rem', color: 'var(--text-muted)' }}>{userItem.email}</td>
