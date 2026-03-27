@@ -86,9 +86,10 @@ export default function AdminPanel() {
   const paginatedUsers = nonAdminUsers.slice((userPage - 1) * ITEMS_PER_PAGE, userPage * ITEMS_PER_PAGE);
 
   const sortedInstructors = [...instructorsList].sort((a, b) => {
-    const dateA = new Date(a.createdAt || 0);
-    const dateB = new Date(b.createdAt || 0);
-    return dateA - dateB; // Ascending order (oldest first)
+    // Sort alphabetically by name (case-insensitive)
+    const nameA = (a.name || '').toLowerCase();
+    const nameB = (b.name || '').toLowerCase();
+    return nameA.localeCompare(nameB);
   });
   const totalInstructorPages = Math.ceil(sortedInstructors.length / ITEMS_PER_PAGE);
   const paginatedInstructors = sortedInstructors.slice((instructorPage - 1) * ITEMS_PER_PAGE, instructorPage * ITEMS_PER_PAGE);
@@ -650,79 +651,80 @@ export default function AdminPanel() {
             </h2>
           </div>
           <div className="glass" style={{ overflow: 'hidden' }}>
-            <div style={{ overflowX: 'auto', width: '100%' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '900px' }}>
+            <div style={{ overflowX: 'auto', width: '100%', WebkitOverflowScrolling: 'touch' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                 <thead>
                   <tr style={{ background: 'rgba(255,255,255,0.05)', textAlign: 'left' }}>
-                    <th style={{ padding: '1.25rem', minWidth: '180px' }}>Name</th>
-                    <th style={{ padding: '1.25rem', minWidth: '200px' }}>Email</th>
-                    <th style={{ padding: '1.25rem', minWidth: '100px' }}>Status</th>
-                    <th style={{ padding: '1.25rem', minWidth: '150px' }}>Categories</th>
-                    <th style={{ padding: '1.25rem', minWidth: '80px' }}>Courses</th>
-                    <th style={{ padding: '1.25rem', minWidth: '80px' }}>Students</th>
-                    <th style={{ padding: '1.25rem', minWidth: '200px' }}>Actions</th>
+                    <th style={{ padding: '1rem', width: '20%', minWidth: '150px' }}>Name</th>
+                    <th style={{ padding: '1rem', width: '20%', minWidth: '180px' }}>Email</th>
+                    <th style={{ padding: '1rem', width: '10%', minWidth: '90px' }}>Status</th>
+                    <th style={{ padding: '1rem', width: '15%', minWidth: '120px' }}>Categories</th>
+                    <th style={{ padding: '1rem', width: '8%', minWidth: '70px', textAlign: 'center' }}>Courses</th>
+                    <th style={{ padding: '1rem', width: '8%', minWidth: '80px', textAlign: 'center' }}>Students</th>
+                    <th style={{ padding: '1rem', width: '19%', minWidth: '180px' }}>Actions</th>
                   </tr>
                 </thead>
               <tbody>
                 {paginatedInstructors.map(inst => (
                   <tr key={inst._id} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '1rem 1.25rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(168,85,247,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a855f7', fontWeight: 'bold', fontSize: '1rem', flexShrink: 0 }}>
-                          {inst.name?.charAt(0) || '?'}
+                    <td style={{ padding: '0.75rem 1rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(168,85,247,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a855f7', fontWeight: 'bold', fontSize: '0.9rem', flexShrink: 0 }}>
+                          {inst.name?.charAt(0).toUpperCase() || '?'}
                         </div>
-                        <strong>{inst.name}</strong>
+                        <strong style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={inst.name}>{inst.name}</strong>
                       </div>
                     </td>
-                    <td style={{ padding: '1rem 1.25rem', color: 'var(--text-muted)' }}>{inst.email}</td>
-                    <td style={{ padding: '1rem 1.25rem' }}>
-                      <span style={{ padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600,
+                    <td style={{ padding: '0.75rem 1rem', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={inst.email}>{inst.email}</td>
+                    <td style={{ padding: '0.75rem 1rem' }}>
+                      <span style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600, display: 'inline-block',
                         background: inst.isGhost ? 'rgba(148,163,184,0.1)' : inst.isBlocked ? 'rgba(239,68,68,0.1)' : inst.isApproved ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
                         color: inst.isGhost ? '#94a3b8' : inst.isBlocked ? '#ef4444' : inst.isApproved ? '#22c55e' : '#f59e0b'
                       }}>
-                        {inst.isGhost ? 'Unregistered' : inst.isBlocked ? 'Blocked' : inst.isApproved ? 'Active' : 'Pending'}
+                        {inst.isGhost ? 'Unreg' : inst.isBlocked ? 'Blocked' : inst.isApproved ? 'Active' : 'Pending'}
                       </span>
                     </td>
-                    <td style={{ padding: '1rem 1.25rem' }}>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
-                        {inst.categories?.length > 0 ? inst.categories.map((cat, i) => (
-                          <span key={i} style={{ background: 'rgba(99,102,241,0.1)', color: 'var(--primary)', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem' }}>{cat}</span>
-                        )) : <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>—</span>}
+                    <td style={{ padding: '0.75rem 1rem' }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem', maxHeight: '60px', overflow: 'hidden' }}>
+                        {inst.categories?.length > 0 ? inst.categories.slice(0, 2).map((cat, i) => (
+                          <span key={i} style={{ background: 'rgba(99,102,241,0.1)', color: 'var(--primary)', padding: '0.1rem 0.4rem', borderRadius: '3px', fontSize: '0.7rem', whiteSpace: 'nowrap' }}>{cat}</span>
+                        )) : <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>—</span>}
+                        {inst.categories?.length > 2 && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>+{inst.categories.length - 2}</span>}
                       </div>
                     </td>
-                    <td style={{ padding: '1rem 1.25rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <BookOpen size={14} color="var(--primary)" />
-                        <strong>{inst.totalCourses}</strong>
+                    <td style={{ padding: '0.75rem 1rem', textAlign: 'center' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                        <BookOpen size={12} color="var(--primary)" />
+                        <strong style={{ fontSize: '0.85rem' }}>{inst.totalCourses}</strong>
                       </div>
                     </td>
-                    <td style={{ padding: '1rem 1.25rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Users size={14} color="#22c55e" />
-                        <strong>{inst.totalStudents}</strong>
+                    <td style={{ padding: '0.75rem 1rem', textAlign: 'center' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                        <Users size={12} color="#22c55e" />
+                        <strong style={{ fontSize: '0.85rem' }}>{inst.totalStudents}</strong>
                       </div>
                     </td>
-                    <td style={{ padding: '1rem 1.25rem' }}>
-                      <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <td style={{ padding: '0.75rem 1rem' }}>
+                      <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', alignItems: 'center' }}>
                         {!inst.isGhost && !inst.isApproved && !inst.isBlocked && (
-                          <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#22c55e', whiteSpace: 'nowrap' }} onClick={() => handleApproveInstructor(inst._id)} title="Approve">
-                            <ShieldCheck size={14} /> Approve
+                          <button className="btn btn-ghost" style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem', color: '#22c55e', whiteSpace: 'nowrap', minWidth: 'auto' }} onClick={() => handleApproveInstructor(inst._id)} title="Approve">
+                            <ShieldCheck size={12} />
                           </button>
                         )}
                         {!inst.isGhost && !inst.isBlocked ? (
-                          <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#ef4444', whiteSpace: 'nowrap' }} onClick={() => handleBlockInstructor(inst._id)} title="Block">
-                            <ShieldOff size={14} /> Block
+                          <button className="btn btn-ghost" style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem', color: '#ef4444', whiteSpace: 'nowrap', minWidth: 'auto' }} onClick={() => handleBlockInstructor(inst._id)} title="Block">
+                            <ShieldOff size={12} />
                           </button>
                         ) : !inst.isGhost && (
-                          <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#22c55e', whiteSpace: 'nowrap' }} onClick={() => handleUnblockInstructor(inst._id)} title="Unblock">
-                            <ShieldCheck size={14} /> Unblock
+                          <button className="btn btn-ghost" style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem', color: '#22c55e', whiteSpace: 'nowrap', minWidth: 'auto' }} onClick={() => handleUnblockInstructor(inst._id)} title="Unblock">
+                            <ShieldCheck size={12} />
                           </button>
                         )}
                         {inst.isGhost ? (
-                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>No actions</span>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>—</span>
                         ) : (
-                          <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#ef4444', whiteSpace: 'nowrap' }} onClick={() => handleDeleteInstructor(inst._id)} title="Delete">
-                            <Trash2 size={14} /> Delete
+                          <button className="btn btn-ghost" style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem', color: '#ef4444', whiteSpace: 'nowrap', minWidth: 'auto' }} onClick={() => handleDeleteInstructor(inst._id)} title="Delete">
+                            <Trash2 size={12} />
                           </button>
                         )}
                       </div>
