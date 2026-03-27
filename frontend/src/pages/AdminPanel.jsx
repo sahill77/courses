@@ -85,8 +85,13 @@ export default function AdminPanel() {
   const totalUserPages = Math.ceil(nonAdminUsers.length / ITEMS_PER_PAGE);
   const paginatedUsers = nonAdminUsers.slice((userPage - 1) * ITEMS_PER_PAGE, userPage * ITEMS_PER_PAGE);
 
-  const totalInstructorPages = Math.ceil(instructorsList.length / ITEMS_PER_PAGE);
-  const paginatedInstructors = instructorsList.slice((instructorPage - 1) * ITEMS_PER_PAGE, instructorPage * ITEMS_PER_PAGE);
+  const sortedInstructors = [...instructorsList].sort((a, b) => {
+    const dateA = new Date(a.createdAt || 0);
+    const dateB = new Date(b.createdAt || 0);
+    return dateA - dateB; // Ascending order (oldest first)
+  });
+  const totalInstructorPages = Math.ceil(sortedInstructors.length / ITEMS_PER_PAGE);
+  const paginatedInstructors = sortedInstructors.slice((instructorPage - 1) * ITEMS_PER_PAGE, instructorPage * ITEMS_PER_PAGE);
 
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [saving, setSaving] = useState(null);
@@ -645,18 +650,19 @@ export default function AdminPanel() {
             </h2>
           </div>
           <div className="glass" style={{ overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: 'rgba(255,255,255,0.05)', textAlign: 'left' }}>
-                  <th style={{ padding: '1.25rem' }}>Name</th>
-                  <th style={{ padding: '1.25rem' }}>Email</th>
-                  <th style={{ padding: '1.25rem' }}>Status</th>
-                  <th style={{ padding: '1.25rem' }}>Categories</th>
-                  <th style={{ padding: '1.25rem' }}>Courses</th>
-                  <th style={{ padding: '1.25rem' }}>Students</th>
-                  <th style={{ padding: '1.25rem' }}>Actions</th>
-                </tr>
-              </thead>
+            <div style={{ overflowX: 'auto', width: '100%' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '900px' }}>
+                <thead>
+                  <tr style={{ background: 'rgba(255,255,255,0.05)', textAlign: 'left' }}>
+                    <th style={{ padding: '1.25rem', minWidth: '180px' }}>Name</th>
+                    <th style={{ padding: '1.25rem', minWidth: '200px' }}>Email</th>
+                    <th style={{ padding: '1.25rem', minWidth: '100px' }}>Status</th>
+                    <th style={{ padding: '1.25rem', minWidth: '150px' }}>Categories</th>
+                    <th style={{ padding: '1.25rem', minWidth: '80px' }}>Courses</th>
+                    <th style={{ padding: '1.25rem', minWidth: '80px' }}>Students</th>
+                    <th style={{ padding: '1.25rem', minWidth: '200px' }}>Actions</th>
+                  </tr>
+                </thead>
               <tbody>
                 {paginatedInstructors.map(inst => (
                   <tr key={inst._id} style={{ borderBottom: '1px solid var(--border)' }}>
@@ -697,25 +703,25 @@ export default function AdminPanel() {
                       </div>
                     </td>
                     <td style={{ padding: '1rem 1.25rem' }}>
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
                         {!inst.isGhost && !inst.isApproved && !inst.isBlocked && (
-                          <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#22c55e' }} onClick={() => handleApproveInstructor(inst._id)} title="Approve">
+                          <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#22c55e', whiteSpace: 'nowrap' }} onClick={() => handleApproveInstructor(inst._id)} title="Approve">
                             <ShieldCheck size={14} /> Approve
                           </button>
                         )}
                         {!inst.isGhost && !inst.isBlocked ? (
-                          <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#ef4444' }} onClick={() => handleBlockInstructor(inst._id)} title="Block">
+                          <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#ef4444', whiteSpace: 'nowrap' }} onClick={() => handleBlockInstructor(inst._id)} title="Block">
                             <ShieldOff size={14} /> Block
                           </button>
                         ) : !inst.isGhost && (
-                          <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#22c55e' }} onClick={() => handleUnblockInstructor(inst._id)} title="Unblock">
+                          <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#22c55e', whiteSpace: 'nowrap' }} onClick={() => handleUnblockInstructor(inst._id)} title="Unblock">
                             <ShieldCheck size={14} /> Unblock
                           </button>
                         )}
                         {inst.isGhost ? (
-                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>No actions available</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>No actions</span>
                         ) : (
-                          <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#ef4444' }} onClick={() => handleDeleteInstructor(inst._id)} title="Delete">
+                          <button className="btn btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#ef4444', whiteSpace: 'nowrap' }} onClick={() => handleDeleteInstructor(inst._id)} title="Delete">
                             <Trash2 size={14} /> Delete
                           </button>
                         )}
@@ -728,6 +734,7 @@ export default function AdminPanel() {
                 )}
               </tbody>
             </table>
+            </div>
             <Pagination currentPage={instructorPage} totalPages={totalInstructorPages} setPage={setInstructorPage} />
           </div>
         </div>
