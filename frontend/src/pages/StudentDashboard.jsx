@@ -94,8 +94,16 @@ export default function StudentDashboard() {
                             {validEnrollments.map(enr => (
                                 <div key={enr._id} className="glass card-hover" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                                     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                                        <div style={{ width: '50px', height: '50px', borderRadius: '10px', background: 'rgba(99,102,241,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                            <Book size={20} color="var(--primary)" />
+                                        <div style={{ width: '50px', height: '50px', borderRadius: '10px', background: 'rgba(99,102,241,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                                            {enr.course?.thumbnail ? (
+                                                <img 
+                                                    src={enr.course.thumbnail} 
+                                                    alt={enr.course.title} 
+                                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                                />
+                                            ) : (
+                                                <Book size={20} color="var(--primary)" />
+                                            )}
                                         </div>
                                         <div style={{ overflow: 'hidden' }}>
                                             <h3 style={{ fontSize: '1rem', marginBottom: '0.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--header-text)' }}>{enr.course?.title}</h3>
