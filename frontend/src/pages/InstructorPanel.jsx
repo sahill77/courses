@@ -63,7 +63,7 @@ export default function InstructorPanel() {
   const [contentFaqs, setContentFaqs] = useState([]);
   const [contentSaving, setContentSaving] = useState(false);
 
-  const ITEMS_PER_PAGE = 5;
+  const ITEMS_PER_PAGE = 6;
   const [coursePage, setCoursePage] = useState(1);
   const [studentPage, setStudentPage] = useState(1);
 
@@ -456,7 +456,7 @@ export default function InstructorPanel() {
             </div>
 
             {/* Mobile Card View */}
-            <div className="mobile-only" style={{ display: 'grid', gap: '1rem' }}>
+            <div className="mobile-only grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
               {paginatedCourses.map(course => (
                 <div key={course._id} className="glass" style={{ padding: '1.25rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
@@ -546,7 +546,7 @@ export default function InstructorPanel() {
             </div>
 
             {/* Mobile Card View */}
-            <div className="mobile-only" style={{ display: 'grid', gap: '1rem' }}>
+            <div className="mobile-only grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
               {paginatedStudents.map(en => (
                 <div key={en._id} className="glass" style={{ padding: '1.25rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
