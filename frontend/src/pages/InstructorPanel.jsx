@@ -357,7 +357,9 @@ export default function InstructorPanel() {
               <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
                 <Activity size={20} color="var(--primary)" /> Recent Enrollments
               </h2>
-              <div className="glass table-container" style={{ overflow: 'hidden' }}>
+              
+              {/* Desktop view */}
+              <div className="glass table-container hide-on-mobile">
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: 'rgba(255,255,255,0.05)', textAlign: 'left' }}>
@@ -384,6 +386,24 @@ export default function InstructorPanel() {
                   </tbody>
                 </table>
               </div>
+
+              {/* Mobile Card View */}
+              <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {students.slice(0, 5).map(en => (
+                  <div key={en._id} className="glass" style={{ padding: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                      <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>{en.user?.name || 'Unknown'}</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(en.enrolledAt).toLocaleDateString()}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--primary)', background: 'rgba(99,102,241,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                        {en.course?.title || '-'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+                {students.length === 0 && <div className="glass" style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No enrollments yet</div>}
+              </div>
             </div>
           </div>
         ) : activeTab === 'courses' ? (
@@ -396,7 +416,8 @@ export default function InstructorPanel() {
                 <PlusCircle size={18} /> Add New Course
               </button>
             </div>
-            <div className="glass table-container" style={{ overflow: 'hidden' }}>
+            {/* Desktop View Table */}
+            <div className="glass table-container hide-on-mobile">
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: 'rgba(0,0,0,0.05)', textAlign: 'left' }}>
@@ -430,11 +451,52 @@ export default function InstructorPanel() {
                       </td>
                     </tr>
                   ))}
-                  {courses.length === 0 && (
-                    <tr><td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No courses yet. Click "Add New Course" to create one.</td></tr>
-                  )}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="mobile-only" style={{ display: 'grid', gap: '1rem' }}>
+              {paginatedCourses.map(course => (
+                <div key={course._id} className="glass" style={{ padding: '1.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '0.4rem' }}>{course.title}</h3>
+                      <span style={{ background: 'rgba(99,102,241,0.1)', color: 'var(--primary)', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem' }}>{course.category}</span>
+                    </div>
+                    <span style={{ padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700,
+                        background: course.status === 'approved' ? 'rgba(34,197,94,0.1)' : course.status === 'rejected' ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)',
+                        color: course.status === 'approved' ? '#22c55e' : course.status === 'rejected' ? '#ef4444' : '#f59e0b'
+                      }}>
+                        {course.status === 'approved' ? 'Approved' : course.status === 'rejected' ? 'Rejected' : 'Pending'}
+                    </span>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.25rem', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '0.75rem 0' }}>
+                    <div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Price</div>
+                      <div style={{ fontWeight: 700 }}>₹{Math.floor(course.price)}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Students</div>
+                      <div style={{ fontWeight: 700 }}>{course.students?.length || 0}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.75rem' }}>
+                    <button className="btn btn-ghost" style={{ flex: 1, padding: '0.6rem', color: 'var(--primary)', gap: '0.4rem', fontSize: '0.85rem' }} onClick={() => openContentModal(course)}><Layers size={14} /> Content</button>
+                    <button className="btn btn-ghost" style={{ flex: 1, padding: '0.6rem', gap: '0.4rem', fontSize: '0.85rem' }} onClick={() => { setCurrentCourse(course); setShowModal(true); }}><Edit size={14} /> Edit</button>
+                    <button className="btn btn-ghost" style={{ padding: '0.6rem', color: '#ef4444' }} onClick={() => handleDelete(course._id)}><Trash2 size={16} /></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {courses.length === 0 && (
+              <div className="glass" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)', marginTop: '1rem' }}>No courses yet. Click "Add New Course" to create one.</div>
+            )}
+            
+            <div style={{ marginTop: '1.5rem' }}>
               <Pagination currentPage={coursePage} totalPages={totalCoursePages} setPage={setCoursePage} />
             </div>
           </div>
@@ -445,7 +507,9 @@ export default function InstructorPanel() {
                 <Users size={20} color="var(--primary)" /> My Students
               </h2>
             </div>
-            <div className="glass table-container" style={{ overflow: 'hidden' }}>
+
+            {/* Desktop View Table */}
+            <div className="glass table-container hide-on-mobile">
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: 'rgba(255,255,255,0.05)', textAlign: 'left' }}>
@@ -477,11 +541,49 @@ export default function InstructorPanel() {
                       </td>
                     </tr>
                   ))}
-                  {students.length === 0 && (
-                    <tr><td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No students enrolled yet</td></tr>
-                  )}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="mobile-only" style={{ display: 'grid', gap: '1rem' }}>
+              {paginatedStudents.map(en => (
+                <div key={en._id} className="glass" style={{ padding: '1.25rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(99,102,241,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', fontWeight: 700 }}>
+                      {(en.user?.name || 'U').charAt(0).toUpperCase()}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 700, fontSize: '1rem' }}>{en.user?.name || 'Unknown'}</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{en.user?.email || '-'}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: '1rem', padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Enrolled In</div>
+                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--primary)' }}>{en.course?.title || '-'}</div>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Course Progress</span>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>{en.progress || 0}%</span>
+                  </div>
+                  <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', marginBottom: '1rem' }}>
+                    <div style={{ width: `${en.progress || 0}%`, height: '100%', background: en.progress >= 100 ? '#22c55e' : 'var(--primary)', borderRadius: '4px', transition: 'width 0.3s' }}></div>
+                  </div>
+
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'right' }}>
+                    Enrolled on {new Date(en.enrolledAt).toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {students.length === 0 && (
+              <div className="glass" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)', marginTop: '1rem' }}>No students enrolled yet</div>
+            )}
+            
+            <div style={{ marginTop: '1.5rem' }}>
               <Pagination currentPage={studentPage} totalPages={totalStudentPages} setPage={setStudentPage} />
             </div>
           </div>
