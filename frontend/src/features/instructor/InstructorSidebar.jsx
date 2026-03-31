@@ -13,23 +13,17 @@ export default function InstructorSidebar({
 }) {
   return (
     <>
-      {isSidebarOpen && window.innerWidth <= 768 && (
-        <div 
-          onClick={() => setIsSidebarOpen(false)} 
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, backdropFilter: 'blur(4px)' }} 
-        />
-      )}
+      <div 
+        className={`sidebar-backdrop ${isSidebarOpen ? 'visible' : ''}`}
+        onClick={() => setIsSidebarOpen(false)} 
+      />
       <aside 
-        className={`admin-sidebar ${!isSidebarOpen ? 'collapsed' : ''}`} 
+        className={`admin-sidebar ${isSidebarOpen ? 'open' : 'collapsed'}`} 
         style={{ 
           padding: '1.25rem 1.5rem',
-          position: window.innerWidth <= 768 ? 'fixed' : 'relative',
-          zIndex: 1001,
           left: 0,
           top: 0,
           bottom: 0,
-          transform: (window.innerWidth <= 768 && !isSidebarOpen) ? 'translateX(-100%)' : 'translateX(0)',
-          boxShadow: (window.innerWidth <= 768 && isSidebarOpen) ? '10px 0 30px rgba(0,0,0,0.5)' : 'none',
           transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s, min-width 0.3s'
         }}
       >
@@ -45,28 +39,28 @@ export default function InstructorSidebar({
         <div className="admin-nav-links" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', height: '100%' }}>
           <button 
             className={`btn ${activeTab === 'dashboard' ? 'btn-primary' : 'btn-ghost'}`} 
-            onClick={() => { setSearchParams({ tab: 'dashboard' }); window.innerWidth <= 768 && setIsSidebarOpen(false); }}
+            onClick={() => { setSearchParams({ tab: 'dashboard' }); setIsSidebarOpen(false); }}
             style={{ justifyContent: 'flex-start', padding: '1rem', fontSize: '1rem', gap: '1rem' }}
           >
             <BarChart2 size={20} style={{ flexShrink: 0 }} /> <span className="nav-text">Dashboard</span>
           </button>
           <button 
             className={`btn ${activeTab === 'courses' ? 'btn-primary' : 'btn-ghost'}`} 
-            onClick={() => { setSearchParams({ tab: 'courses' }); window.innerWidth <= 768 && setIsSidebarOpen(false); }}
+            onClick={() => { setSearchParams({ tab: 'courses' }); setIsSidebarOpen(false); }}
             style={{ justifyContent: 'flex-start', padding: '1rem', fontSize: '1rem', gap: '1rem' }}
           >
             <BookOpen size={20} style={{ flexShrink: 0 }} /> <span className="nav-text">My Courses</span>
           </button>
           <button 
             className={`btn ${activeTab === 'students' ? 'btn-primary' : 'btn-ghost'}`} 
-            onClick={() => { setSearchParams({ tab: 'students' }); window.innerWidth <= 768 && setIsSidebarOpen(false); }}
+            onClick={() => { setSearchParams({ tab: 'students' }); setIsSidebarOpen(false); }}
             style={{ justifyContent: 'flex-start', padding: '1rem', fontSize: '1rem', gap: '1rem' }}
           >
             <Users size={20} style={{ flexShrink: 0 }} /> <span className="nav-text">My Students</span>
           </button>
           <button 
             className={`btn ${activeTab === 'settings' ? 'btn-primary' : 'btn-ghost'}`} 
-            onClick={() => { setSearchParams({ tab: 'settings' }); window.innerWidth <= 768 && setIsSidebarOpen(false); }}
+            onClick={() => { setSearchParams({ tab: 'settings' }); setIsSidebarOpen(false); }}
             style={{ justifyContent: 'flex-start', padding: '1rem', fontSize: '1rem', gap: '1rem' }}
           >
             <Settings size={20} style={{ flexShrink: 0 }} /> <span className="nav-text">Profile Settings</span>

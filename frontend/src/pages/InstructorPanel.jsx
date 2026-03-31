@@ -307,9 +307,9 @@ export default function InstructorPanel() {
         navigate={navigate} 
       />
 
-      <main className="admin-main" style={{ flex: 1, padding: window.innerWidth <= 768 ? '1rem' : '1.5rem 3rem', overflowY: 'auto', height: '100%' }}>
+      <main className="admin-main" style={{ flex: 1, overflowY: 'auto', height: '100%' }}>
         {/* Mobile Header Toggle */}
-        <div style={{ display: window.innerWidth <= 768 ? 'flex' : 'none', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', background: 'var(--bg-card)', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid var(--border)', position: 'sticky', top: 0, zIndex: 10, backdropFilter: 'blur(10px)' }}>
+        <div className="mobile-only" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', background: 'var(--bg-card)', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid var(--border)', position: 'sticky', top: 0, zIndex: 10, backdropFilter: 'blur(10px)' }}>
           <button className="btn btn-ghost" onClick={() => setIsSidebarOpen(true)} style={{ padding: '0.5rem' }}>
             <Menu size={24} />
           </button>
@@ -357,7 +357,7 @@ export default function InstructorPanel() {
               <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
                 <Activity size={20} color="var(--primary)" /> Recent Enrollments
               </h2>
-              <div className="glass" style={{ overflow: 'hidden' }}>
+              <div className="glass table-container" style={{ overflow: 'hidden' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: 'rgba(255,255,255,0.05)', textAlign: 'left' }}>
@@ -396,7 +396,7 @@ export default function InstructorPanel() {
                 <PlusCircle size={18} /> Add New Course
               </button>
             </div>
-            <div className="glass" style={{ overflow: 'hidden' }}>
+            <div className="glass table-container" style={{ overflow: 'hidden' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: 'rgba(0,0,0,0.05)', textAlign: 'left' }}>
@@ -445,7 +445,7 @@ export default function InstructorPanel() {
                 <Users size={20} color="var(--primary)" /> My Students
               </h2>
             </div>
-            <div className="glass" style={{ overflow: 'hidden' }}>
+            <div className="glass table-container" style={{ overflow: 'hidden' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: 'rgba(255,255,255,0.05)', textAlign: 'left' }}>
@@ -552,8 +552,8 @@ export default function InstructorPanel() {
 
       {/* Course Create/Edit Modal */}
       {showModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100 }}>
-          <div className="glass container-mobile-padding" style={{ padding: '2rem', width: '95%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '1rem' }}>
+          <div className="glass modal-content container-mobile-padding" style={{ padding: '2rem', width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
             <h2 style={{ marginBottom: '1.5rem' }}>{currentCourse._id ? 'Edit Course' : 'Create New Course'}</h2>
             <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem' }}>
               <input
@@ -627,11 +627,11 @@ export default function InstructorPanel() {
 
       {/* Content & FAQ Modal (inline, uses instructor routes) */}
       {contentModalCourse && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100 }}>
-          <div className="glass container-mobile-padding" style={{ width: '95%', maxWidth: '800px', height: '90vh', display: 'flex', flexDirection: 'column', borderRadius: '16px', overflow: 'hidden' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '1rem' }}>
+          <div className="glass modal-content container-mobile-padding" style={{ width: '100%', maxWidth: '800px', height: '90vh', display: 'flex', flexDirection: 'column', borderRadius: '16px', overflow: 'hidden' }}>
             
             {/* Header */}
-            <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)' }}>
+            <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)' }}>
               <div>
                 <h2 style={{ fontSize: '1.25rem', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Layers size={20} color="var(--primary)" /> Manage Content: {contentModalCourse.title}
@@ -660,7 +660,7 @@ export default function InstructorPanel() {
             </div>
 
             {/* Body */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '2rem' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '1rem 1.5rem' }}>
               {contentActiveTab === 'curriculum' && (
                 <div className="animate-fade-in">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -751,7 +751,7 @@ export default function InstructorPanel() {
             </div>
 
             {/* Footer */}
-            <div style={{ padding: '1.5rem 2rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: '1rem', background: 'rgba(255,255,255,0.02)' }}>
+            <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: '1rem', background: 'rgba(255,255,255,0.02)' }}>
               <button onClick={() => setContentModalCourse(null)} className="btn btn-ghost" disabled={contentSaving}>Cancel</button>
               <button onClick={handleContentSave} className="btn btn-primary" disabled={contentSaving} style={{ gap: '0.5rem', padding: '0.6rem 2rem' }}>
                 <Save size={18} /> {contentSaving ? 'Saving...' : 'Save All Changes'}
